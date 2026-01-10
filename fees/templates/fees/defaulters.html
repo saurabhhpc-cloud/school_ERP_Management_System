@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Fee Defaulters{% endblock %}
+
+{% block content %}
+
+<!-- 🔷 PAGE TITLE -->
+<div class="mb-3">
+  <h4 class="mb-1">💰 Fee Defaulters</h4>
+  <p class="text-muted">Students with pending or partial fee payments</p>
+</div>
+
+<!-- 🔹 TOP ACTIONS -->
+{% if not is_demo %}
+<div class="row mb-3">
+  <div class="col-md-3">
+    <a href="/fees/defaulters/export/?class_name={{ selected_class }}&status={{ selected_status }}"
+       class="btn btn-outline-success w-100">
+      ⬇ Export CSV
+    </a>
+  </div>
+</div>
+{% endif %}
+
+<!-- 🔹 FILTER -->
+<form class="row g-2 mb-3" method="get">
+  <div class="col-md-3">
+    <input class="form-control" name="class_name" placeholder="Class"
+           value="{{ selected_class }}">
+  </div>
+  <div class="col-md-3">
+    <select class="form-select" name="status">
+      <option value="Due" {% if selected_status == "Due" %}selected{% endif %}>Due</option>
+      <option value="Partial" {% if selected_status == "Partial" %}selected{% endif %}>Partial</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <button class="btn btn-primary w-100">Filter</button>
+  </div>
+</form>
+
+<!-- 🔹 TABLE -->
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-striped align-middle mb-0">
+        <thead class="table-dark">
+          <tr>
+            <th>Student</th>
+            <th>Class</th>
+            <th>Total</th>
+            <th>Paid</th>
+            <th>Due</th>
+            <th>Status</th>
+            <th>Due Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in records %}
+          <tr>
+            <td>{{ r.student.full_name }}</td>
+            <td>{{ r.student.class_name }}</td>
+            <td>₹{{ r.total_amount }}</td>
+            <td>₹{{ r.paid_amount }}</td>
+            <td>₹{{ r.due_amount }}</td>
+            <td>
+              {% if r.status == "Due" %}
+                <span class="badge bg-danger">Due</span>
+              {% else %}
+                <span class="badge bg-warning text-dark">Partial</span>
+              {% endif %}
+            </td>
+            <td>{{ r.due_date }}</td>
+            <td>
+              {% if not is_demo %}
+                <a href="/fees/defaulters/remind/{{ r.id }}/"
+                   class="btn btn-sm btn-success">
+                  WhatsApp
+                </a>
+              {% else %}
+                <span class="text-muted">Read-only</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center text-muted">
+              No defaulters found 🎉
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 🔹 BULK ACTION -->
+{% if not is_demo %}
+<div class="row mt-3">
+  <div class="col-md-4">
+    <a href="/fees/defaulters/remind-bulk/?class_name={{ selected_class }}&status={{ selected_status }}"
+       class="btn btn-warning w-100">
+      📲 Send WhatsApp to All
+    </a>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

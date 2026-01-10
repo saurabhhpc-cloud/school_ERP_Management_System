@@ -1,0 +1,116 @@
+{% extends "attendance/base.html" %}
+{% block title %}Leads Dashboard{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">Leads Dashboard</h3>
+
+<!-- STAT CARDS -->
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5>Total Leads</h5>
+        <h2>{{ total_leads }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5>Today</h5>
+        <h2>{{ today_leads }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <h5>Last 7 Days</h5>
+        <h2>{{ week_leads }}</h2>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHARTS -->
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h5>City-wise Leads</h5>
+        <canvas id="cityChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h5>Leads (Last 7 Days)</h5>
+        <canvas id="weekChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TABLE -->
+<h5>Latest Leads</h5>
+<table class="table table-striped">
+  <thead class="table-dark">
+    <tr>
+      <th>Name</th>
+      <th>Phone</th>
+      <th>City</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for l in latest_leads %}
+    <tr>
+      <td>{{ l.name }}</td>
+      <td>{{ l.phone }}</td>
+      <td>{{ l.city }}</td>
+      <td>{{ l.created_at|date:"d M Y" }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">No leads</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- CHART JS -->
+<script>
+  // City-wise Bar Chart
+  const cityCtx = document.getElementById('cityChart');
+  new Chart(cityCtx, {
+    type: 'bar',
+    data: {
+      labels: {{ city_labels|safe }},
+      datasets: [{
+        label: 'Leads',
+        data: {{ city_counts|safe }},
+        backgroundColor: '#0d6efd'
+      }]
+    }
+  });
+
+  // Last 7 Days Line Chart
+  const weekCtx = document.getElementById('weekChart');
+  new Chart(weekCtx, {
+    type: 'line',
+    data: {
+      labels: {{ days|safe }},
+      datasets: [{
+        label: 'Leads',
+        data: {{ day_counts|safe }},
+        borderColor: '#198754',
+        fill: false,
+        tension: 0.3
+      }]
+    }
+  });
+</script>
+
+{% endblock %}

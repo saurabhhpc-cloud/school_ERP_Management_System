@@ -1,0 +1,35 @@
+{% extends "attendance/base.html" %}
+{% block title %}Today Summary{% endblock %}
+
+{% block content %}
+<h3 class="mb-3">Today Summary ({{ today }})</h3>
+
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <h6>Total Marked</h6>
+        <h2>{{ total_students }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card text-center border-success">
+      <div class="card-body">
+        <h6 class="text-success">Present</h6>
+        <h2>{{ present }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card text-center border-danger">
+      <div class="card-body">
+        <h6 class="text-danger">Absent</h6>
+        <h2>{{ absent }}</h2>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

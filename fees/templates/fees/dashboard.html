@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Fees Dashboard{% endblock %}
+
+{% block content %}
+
+<h4 class="mb-3">💰 Fees Dashboard</h4>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card text-center shadow-sm">
+      <div class="card-body">
+        <h6>Students</h6>
+        <h3>{{ total_students }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card text-center shadow-sm">
+      <div class="card-body">
+        <h6>Total Fees</h6>
+        <h4>₹ {{ total_amount }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card text-center shadow-sm border-success">
+      <div class="card-body">
+        <h6>Paid</h6>
+        <h4 class="text-success">₹ {{ paid_amount }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card text-center shadow-sm border-danger">
+      <div class="card-body">
+        <h6>Pending</h6>
+        <h4 class="text-danger">₹ {{ due_amount }}</h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="/fees/defaulters/" class="btn btn-primary">
+  View Fee Defaulters ({{ defaulters_count }})
+</a>
+
+{% endblock %}
