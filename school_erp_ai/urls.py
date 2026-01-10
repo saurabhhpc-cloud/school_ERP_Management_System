@@ -21,6 +21,7 @@ from django.contrib.auth import views as auth_views
 from .views import post_login_redirect
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+from .views import create_admin
 
 def create_admin(request):
     if not User.objects.filter(username="admin").exists():
@@ -33,19 +34,13 @@ def create_admin(request):
     return HttpResponse("⚠ Admin already exists")
 
 urlpatterns = [
-    path("create-admin/", create_admin),
     path("admin/", admin.site.urls),
+    path("login/", include("django.contrib.auth.urls")),
 
-    # 🔐 LOGIN / LOGOUT
-    path("login/", auth_views.LoginView.as_view(
-        template_name="auth/login.html"
-    ), name="login"),
-    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    # 👇 ADD THIS LINE
+    path("create-admin/", create_admin, name="create_admin"),
 
-    # 🏠 HOME (ROLE-BASED REDIRECT)
-    path("", post_login_redirect, name="home"),
-
-    # 📦 APPS
+    path("", include("attendance.urls")),
     path("attendance/", include("attendance.urls")),
     path("fees/", include("fees.urls")),
     path("leads/", include("leads.urls")),

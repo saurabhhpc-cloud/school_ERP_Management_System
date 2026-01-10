@@ -8,4 +8,5 @@ urlpatterns = [
     path("defaulters/export/", views.export_defaulters_csv, name="export_defaulters_csv"),
     path("defaulters/remind/<int:fee_id>/", views.send_fee_reminder, name="send_fee_reminder"),
     path("defaulters/remind-bulk/", views.send_bulk_fee_reminders, name="send_bulk_fee_reminders"),
+    path("defaulters/", defaulters_report, name="defaulters_report"),
 ]
