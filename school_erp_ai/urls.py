@@ -19,8 +19,21 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from .views import post_login_redirect
+from django.http import HttpResponse
+from django.contrib.auth.models import User
+
+def create_admin(request):
+    if not User.objects.filter(username="admin").exists():
+        User.objects.create_superuser(
+            username="admin",
+            password="Admin@123",
+            email="admin@school.com"
+        )
+        return HttpResponse("✅ Admin created")
+    return HttpResponse("⚠ Admin already exists")
 
 urlpatterns = [
+    path("create-admin/", create_admin),
     path("admin/", admin.site.urls),
 
     # 🔐 LOGIN / LOGOUT

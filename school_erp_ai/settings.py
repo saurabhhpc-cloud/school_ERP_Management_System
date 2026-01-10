@@ -1,6 +1,5 @@
 
 
-import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -147,3 +146,4 @@ if os.environ.get("DJANGO_SUPERUSER_USERNAME"):
             )
     except Exception:
         pass
+    import os
