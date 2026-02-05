@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Parent Dashboard{% endblock %}
+
+{% block content %}
+
+<h3 class="fw-bold mb-4">👨‍👩‍👧 Parent Dashboard</h3>
+
+<!-- 🔝 TOP SUMMARY CARDS -->
+<div class="row mb-4 g-3">
+
+  <div class="col-md-3">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <small class="text-muted">Total Children</small>
+        <h3 class="fw-bold">{{ total_children }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <small class="text-muted">Total Paid</small>
+        <h3 class="fw-bold text-success">₹ {{ total_paid }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <small class="text-muted">Total Pending</small>
+        <h3 class="fw-bold text-danger">₹ {{ total_pending }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <small class="text-muted">Avg Attendance</small>
+        {% if avg_attendance is not None %}
+          <h3 class="fw-bold">{{ avg_attendance }}%</h3>
+        {% else %}
+          <h6 class="text-muted">Not marked yet</h6>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- 👶 CHILD WISE CARDS -->
+<div class="row g-3 mt-2">
+
+  {% for child in child_cards %}
+  <div class="col-md-4">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body">
+
+        <h5 class="fw-semibold mb-1">{{ child.name }}</h5>
+        <p class="text-muted mb-2">Class {{ child.class }}</p>
+  </div>
+<a href="{% url 'fees_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+    ← Back to Dashboard
+</a>
+  View Fees
+</a>
+</a>
+        <!-- Attendance -->
+        <label class="small fw-semibold">Attendance</label>
+        {% if child.attendance is not None %}
+          <div class="progress mb-2" style="height:8px;">
+            <div class="progress-bar bg-success"
+                 style="width: {{ child.attendance }}%;">
+            </div>
+          </div>
+          <small class="text-muted">{{ child.attendance }}%</small>
+        {% else %}
+          <div class="progress mb-2" style="height:8px;">
+            <div class="progress-bar bg-secondary" style="width:100%;"></div>
+          </div>
+          <small class="text-muted">Not marked yet</small>
+        {% endif %}
+
+        <!-- Fees -->
+        <div class="d-flex justify-content-between mt-3">
+          <span class="badge bg-success">Paid ₹{{ child.paid }}</span>
+          <span class="badge bg-danger">Pending ₹{{ child.pending }}</span>
+        </div>
+
+        <!-- Fee Status -->
+        <div class="mt-3">
+          {% if child.pending > 0 %}
+            <span class="text-danger fw-semibold">❌ Payment Due</span>
+          {% else %}
+            <span class="text-success fw-semibold">✅ No Dues</span>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+{% endblock %}

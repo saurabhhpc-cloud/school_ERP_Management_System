@@ -1,0 +1,29 @@
+{% extends "school/base_school.html" %}
+{% block content %}
+
+<h4>📋 Mark Attendance – {{ today }}</h4>
+
+<form method="post">
+    {% csrf_token %}
+    <table class="table table-bordered">
+        <tr>
+            <th>Student</th>
+            <th>Status</th>
+        </tr>
+        {% for s in students %}
+        <tr>
+            <td>{{ s.name }}</td>
+            <td>
+                <select name="{{ s.id }}" class="form-select">
+                    <option value="P">Present</option>
+                    <option value="A">Absent</option>
+                </select>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <button class="btn btn-success">Save Attendance</button>
+</form>
+
+{% endblock %}

@@ -2,3 +2,5 @@ Django>=5.2
 gunicorn
 whitenoise
 requests
+django-jazzmin
+openpyx1

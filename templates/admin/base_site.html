@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block branding %}
+<div style="display:flex; align-items:center; padding:10px 15px;">
+    <img src="{% static 'images/logo.png' %}"
+         style="height:36px; margin-right:10px;">
+    <span style="
+        font-size:18px;
+        font-weight:700;
+        color:#ffffff;
+        letter-spacing:0.5px;
+    ">
+        EduConnect ERP
+    </span>
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+<style>
+:root {
+    --brand-primary: {{ school.primary_color|default:"#4f46e5" }};
+    --brand-accent: {{ school.accent_color|default:"#22c55e" }};
+}
+</style>
+{% endblock %}

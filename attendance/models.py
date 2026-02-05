@@ -1,19 +1,33 @@
 from django.db import models
-from students.models import Student 
+from schools.models import School
+from students.models import Student
+from teacher.models import Teacher
+
 
 class Attendance(models.Model):
-    STATUS_CHOICES = (
-        ("Present", "Present"),
-        ("Absent", "Absent")
-    )
-
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+
     date = models.DateField()
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES)
+    is_present = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ("student", "date")
+        verbose_name_plural = "Student Attendance"
 
     def __str__(self):
-        return f"{self.student.full_name} - {self.date} - {self.status}"
+        return f"{self.student} - {self.date}"
 
+class AttendanceSummary(models.Model):
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    month = models.DateField()
+    percentage = models.FloatField()
 
+    class Meta:
+        unique_together = ("school", "month")
+        verbose_name_plural = "Attendance Summary"
 
-# Create your models here.
+    def __str__(self):
+        return f"{self.school} - {self.month.strftime('%b %Y')}"
+    

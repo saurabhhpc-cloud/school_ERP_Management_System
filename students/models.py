@@ -1,21 +1,25 @@
 from django.db import models
+from teacher.models import Teacher
 
 class Student(models.Model):
-
-    GENDER_CHOICES = (
-        ("Male", "Male"),
-        ("Female", "Female"),
+    school = models.ForeignKey(
+        "schools.School",
+        on_delete=models.CASCADE
     )
+    name = models.CharField(max_length=100)
 
-    full_name = models.CharField(max_length=100)
-    student_id = models.CharField(max_length=20, unique=True)
     class_name = models.CharField(max_length=20)
     section = models.CharField(max_length=5)
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
-    parent_name = models.CharField(max_length=100)
-    parent_mobile = models.CharField(max_length=15)
-    address = models.CharField(max_length=100)
-    created_at = models.DateTimeField(auto_now_add=True)
+    teacher = models.ForeignKey(
+        Teacher,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="students"
+    )
 
     def __str__(self):
-        return f"{self.full_name} ({self.class_name}-{self.section})"
+        return self.name
+
+
+   

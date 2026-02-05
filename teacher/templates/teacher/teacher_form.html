@@ -1,0 +1,15 @@
+{% extends "school/base_school.html" %}
+
+{% block content %}
+<div class="container">
+    <h4>Edit Teacher</h4>
+
+    <form method="post" class="card p-4 shadow-sm">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button class="btn btn-success">Save</button>
+        <a href="{% url 'teachers:list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

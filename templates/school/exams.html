@@ -1,0 +1,27 @@
+{% extends "school_admin/base.html" %}
+{% load static %}
+
+{% block content %}
+<h2>📝 Exams</h2>
+<p>No exams created yet</p>
+
+
+<table class="table">
+    <tr>
+        <th>Exam</th>
+        <th>Duration</th>
+        <th>Status</th>
+    </tr>
+    {% for exam in exams %}
+    <tr>
+        <td>{{ exam.name }}</td>
+        <td>{{ exam.start_date }} – {{ exam.end_date }}</td>
+        <td>{{ exam.is_active|yesno:"Active,Closed" }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="3">No exams created yet</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

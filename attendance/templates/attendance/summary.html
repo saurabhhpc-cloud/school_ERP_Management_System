@@ -1,35 +1,59 @@
-{% extends "attendance/base.html" %}
-{% block title %}Today Summary{% endblock %}
+{% extends "school/base_school.html" %}
+{% block title %}Today Attendance{% endblock %}
 
 {% block content %}
-<h3 class="mb-3">Today Summary ({{ today }})</h3>
 
-<div class="row g-3">
+<div class="mb-3">
+  <h4>🗓 Today Attendance</h4>
+  <p class="text-muted">{{ today }}</p>
+</div>
+
+<!-- SUMMARY CARDS -->
+<div class="row g-3 mb-4">
   <div class="col-md-4">
-    <div class="card text-center">
-      <div class="card-body">
-        <h6>Total Marked</h6>
-        <h2>{{ total_students }}</h2>
-      </div>
+    <div class="card card-stat bg-light text-center p-3">
+      <h6>Total Students</h6>
+      <h3>{{ total_students }}</h3>
     </div>
   </div>
-
   <div class="col-md-4">
-    <div class="card text-center border-success">
-      <div class="card-body">
-        <h6 class="text-success">Present</h6>
-        <h2>{{ present }}</h2>
-      </div>
+    <div class="card card-stat bg-success text-white text-center p-3">
+      <h6>Present</h6>
+      <h3>{{ present }}</h3>
     </div>
   </div>
-
   <div class="col-md-4">
-    <div class="card text-center border-danger">
-      <div class="card-body">
-        <h6 class="text-danger">Absent</h6>
-        <h2>{{ absent }}</h2>
-      </div>
+    <div class="card card-stat bg-danger text-white text-center p-3">
+      <h6>Absent</h6>
+      <h3>{{ absent }}</h3>
     </div>
   </div>
 </div>
+
+<!-- PIE CHART -->
+<div class="card shadow-sm">
+  <div class="card-body text-center">
+    <h6 class="mb-3">Attendance Distribution</h6>
+    <canvas id="attendancePie" style="max-width:320px;margin:auto;"></canvas>
+  </div>
+</div>
+
+<script>
+new Chart(document.getElementById("attendancePie"), {
+    type: "pie",
+    data: {
+        labels: ["Present", "Absent"],
+        datasets: [{
+            data: [{{ present }}, {{ absent }}],
+            backgroundColor: ["#22c55e", "#ef4444"]
+        }]
+    },
+    options: {
+        plugins: {
+            legend: { position: "bottom" }
+        }
+    }
+});
+</script>
+
 {% endblock %}

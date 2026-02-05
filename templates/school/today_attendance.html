@@ -1,0 +1,49 @@
+{% extends "school/base_school.html" %}
+
+{% block title %}Today's Attendance{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <h4 class="mb-4">📅 Today's Attendance</h4>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6>Total Students</h6>
+                    <h4>{{ today_total }}</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center text-success">
+                <div class="card-body">
+                    <h6>Present</h6>
+                    <h4>{{ today_present }}</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center text-danger">
+                <div class="card-body">
+                    <h6>Absent</h6>
+                    <h4>{{ today_absent }}</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6>Attendance %</h6>
+                    <h4>{{ today_percentage }}%</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

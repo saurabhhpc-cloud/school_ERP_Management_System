@@ -1,0 +1,16 @@
+{% extends "admin/login.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin_login.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+    <div class="login-card">
+        <img src="{% static 'images/logo.png' %}" class="login-logo" alt="EduConnect ERP">
+        {{ block.super }}
+    </div>
+</div>
+{% endblock %}

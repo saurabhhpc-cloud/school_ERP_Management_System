@@ -1,0 +1,18 @@
+{% extends "school/base_school.html" %}
+
+{% block content %}
+<div class="container">
+    <h4>Import Attendance (Excel)</h4>
+
+    <form method="post" enctype="multipart/form-data" class="card p-4">
+        {% csrf_token %}
+        <input type="file" name="file" class="form-control mb-3" required>
+        <button class="btn btn-primary">Import Attendance</button>
+    </form>
+
+    <p class="mt-3 text-muted">
+        Excel format: name | class_name | section | date | status (P/A)
+    </p>
+    
+</div>
+{% endblock %}

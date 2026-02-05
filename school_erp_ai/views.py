@@ -1,31 +1,78 @@
-from django.shortcuts import redirect
-from django.contrib.auth.models import User
-from django.http import HttpResponse
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum, Count
+from students.models import Student
+from fees.models import FeePayment
+from attendance.models import Attendance
 
-def create_admin(request):
-    if User.objects.filter(is_superuser=True).exists():
-        return HttpResponse("Admin already exists")
+@login_required
+def saas_dashboard(request):
 
-    User.objects.create_superuser(
-        username="admin",
-        password="Admin@123",
-        email="admin@school.com"
+    total_students = Student.objects.count()
+
+    fees_collected = FeePayment.objects.filter(
+        status="PAID"
+    ).aggregate(total=Sum("amount_paid"))["total"] or 0
+
+    pending_fees = FeePayment.objects.filter(
+        status="PENDING"
+    ).aggregate(total=Sum("amount_paid"))["total"] or 0
+
+    total_attendance = Attendance.objects.count()
+    present_attendance = Attendance.objects.filter(status="PRESENT").count()
+
+    attendance_percent = (
+        (present_attendance / total_attendance) * 100
+        if total_attendance > 0 else 0
     )
-    return HttpResponse("Admin created successfully")
 
-def post_login_redirect(request):
-    user = request.user
+    # 🧠 SIMPLE AI LOGIC
+    if attendance_percent < 60:
+        ai_insight = "⚠️ Attendance is low. Risk of dropouts detected."
+    elif pending_fees > 50000:
+        ai_insight = "💰 High pending fees. Follow up with parents."
+    else:
+        ai_insight = "✅ School performance is stable."
 
-    if not user.is_authenticated:
-        return redirect("/login/")
+    context = {
+        "total_students": total_students,
+        "fees_collected": fees_collected,
+        "pending_fees": pending_fees,
+        "attendance_percent": round(attendance_percent, 1),
+        "ai_insight": ai_insight,
+    }
 
-    if user.is_superuser:
-        return redirect("/admin/")
+    return render(request, "school_admin/dashboard.html", context)
+@login_required
+def dashboard_view(request):
+    return render(request, "school_admin/dashboard.html")
 
-    if user.groups.filter(name="Teacher").exists():
-        return redirect("/attendance/class-wise/")
 
-    if user.groups.filter(name="Accountant").exists():
-        return redirect("/fees/defaulters/")
+@login_required
+def attendance_view(request):
+    return render(request, "school_admin/attendance.html")
 
-    return redirect("/")
+
+@login_required
+def fees_view(request):
+    return render(request, "school_admin/fees.html")
+
+
+@login_required
+def students_view(request):
+    return render(request, "school_admin/students.html")
+
+
+@login_required
+def exams_view(request):
+    return render(request, "school_admin/exams.html")
+
+
+@login_required
+def reports_view(request):
+    return render(request, "school_admin/reports.html")
+
+
+@login_required
+def settings_view(request):
+    return render(request, "school_admin/dashboard.html")

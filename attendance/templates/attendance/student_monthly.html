@@ -1,0 +1,47 @@
+{% extends "school/base_school.html" %}
+{% block content %}
+
+<h4 class="mb-3">📊 Student Monthly Attendance</h4>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <select name="student" class="form-select" required>
+            <option value="">Select Student</option>
+            {% for s in students %}
+            <option value="{{ s.id }}"
+              {% if selected_student and s.id == selected_student.id %}selected{% endif %}>
+              {{ s.name }} ({{ s.class_name }}{{ s.section }})
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-primary">View</button>
+    </div>
+</form>
+
+{% if labels %}
+<canvas id="studentChart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+new Chart(document.getElementById("studentChart"), {
+    type: "bar",
+    data: {
+        labels: {{ labels|safe }},
+        datasets: [{
+            label: "Attendance %",
+            data: {{ data|safe }},
+            backgroundColor: "rgba(13,110,253,0.7)"
+        }]
+    },
+    options: {
+        scales: {
+            y: { beginAtZero: true, max: 100 }
+        }
+    }
+});
+</script>
+{% endif %}
+
+{% endblock %}

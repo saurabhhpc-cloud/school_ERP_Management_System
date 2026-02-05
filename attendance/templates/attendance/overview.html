@@ -1,0 +1,124 @@
+{% extends "school/base_school.html" %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <h4 class="mb-4">📊 Attendance Overview (Class & Section)</h4>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <input
+            type="month"
+            name="month"
+            value="{{ selected_month }}"
+            class="form-control"
+        >
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary">
+            Filter
+        </button>
+    </div>
+</form>
+    <!-- SUMMARY TABLE -->
+    <div class="card mb-4">
+        <div class="card-body table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Class</th>
+                        <th>Section</th>
+                        <th>Total</th>
+                        <th>Present</th>
+                        <th>Attendance %</th>
+                        <th>View</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in overview %}
+                    <tr>
+                        <td><strong>{{ row.class_name }}</strong></td>
+                        <td>{{ row.section }}</td>
+                        <td>{{ row.total }}</td>
+                        <td>{{ row.present }}</td>
+                        <td>
+                            <span class="badge {% if row.percent < 75 %}bg-danger{% else %}bg-success{% endif %}">
+                                {{ row.percent }}%
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'attendance:class_wise' %}?class_name={{ row.class_name }}&section={{ row.section }}"
+                               class="btn btn-sm btn-primary">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            No attendance data
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CHART -->
+    <div class="card">
+        <div class="card-body">
+            <h6 class="mb-3">Class–Section Attendance %</h6>
+
+            {% if chart_labels %}
+                <canvas id="attendanceChart"></canvas>
+            {% else %}
+                <p class="text-muted text-center mb-0">
+                    No attendance data available to display chart
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% if chart_labels %}
+<script>
+  const labels = {{ chart_labels|safe }};
+  const dataValues = {{ chart_data|safe }};
+
+  const ctx = document.getElementById('attendanceChart');
+
+  new Chart(ctx, {
+      type: 'bar',
+      data: {
+          labels: labels,
+          datasets: [{
+              label: 'Attendance %',
+              data: dataValues,
+              backgroundColor: dataValues.map(p =>
+                  p < 75 ? 'rgba(220,53,69,0.7)' : 'rgba(25,135,84,0.7)'
+              ),
+              borderColor: dataValues.map(p =>
+                  p < 75 ? 'rgba(220,53,69,1)' : 'rgba(25,135,84,1)'
+              ),
+              borderWidth: 1
+          }]
+      },
+      options: {
+          responsive: true,
+          scales: {
+              y: {
+                  beginAtZero: true,
+                  max: 100
+              }
+          }
+      }
+  });
+</script>
+{% endif %}
+
+{% endblock %}

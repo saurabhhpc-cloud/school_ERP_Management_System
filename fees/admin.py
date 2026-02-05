@@ -1,17 +1,26 @@
 from django.contrib import admin
-from .models import FeeStructure, StudentFee
+from django.contrib.admin.sites import AlreadyRegistered
+from .models import FeeStructure, FeePayment
+from school_erp_ai.admin_site import admin_site
 
-@admin.register(FeeStructure)
+
 class FeeStructureAdmin(admin.ModelAdmin):
-    list_display = ("class_name", "amount")
-    search_fields = ("class_name",)
+    list_display = ("class_name", "fee_type", "amount")
 
 
-@admin.register(StudentFee)
-class StudentFeeAdmin(admin.ModelAdmin):
-    list_display = ("student", "total_amount", "paid_amount", "status", "due_date")
-    list_filter = ("status", "due_date")
-    search_fields = ("student__full_name",)
+class FeePaymentAdmin(admin.ModelAdmin):
+    list_display = ("student", "amount_paid", "status", "created_at")
+    list_filter = ("status", "payment_mode", "created_at")
 
 
-# Register your models here.
+# ✅ SAFE REGISTRATION
+try:
+    admin_site.register(FeeStructure, FeeStructureAdmin)
+except AlreadyRegistered:
+    pass
+
+try:
+    admin_site.register(FeePayment, FeePaymentAdmin)
+except AlreadyRegistered:
+    pass
+

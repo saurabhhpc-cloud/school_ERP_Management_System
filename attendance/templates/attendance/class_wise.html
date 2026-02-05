@@ -1,102 +1,95 @@
-{% extends "base.html" %}
+{% extends "school/base_school.html" %}
+
+{% block title %}Class Wise Attendance{% endblock %}
+
 {% block content %}
+<div class="container-fluid">
 
-<!-- 🔷 PAGE TITLE -->
-<div class="mb-3">
-  <h4 class="mb-1">📋 Attendance Dashboard</h4>
-  <p class="text-muted">Class-wise and date-wise attendance overview</p>
-</div>
+    <h4 class="mb-4">
+        <i class="bi bi-calendar-check"></i> Class Wise Attendance
+    </h4>
 
-<!-- 🔹 SUMMARY CARDS -->
-<div class="row g-3 mb-4">
-  <div class="col-md-4">
-    <div class="card shadow-sm">
-      <div class="card-body text-center">
-        <h6 class="text-muted">Total Records</h6>
-        <h3>{{ total }}</h3>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card shadow-sm border-success">
-      <div class="card-body text-center">
-        <h6 class="text-muted">Present</h6>
-        <h3 class="text-success">{{ present }}</h3>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card shadow-sm border-danger">
-      <div class="card-body text-center">
-        <h6 class="text-muted">Absent</h6>
-        <h3 class="text-danger">{{ absent }}</h3>
-      </div>
-    </div>
-  </div>
-</div>
+    <!-- Filter -->
+    <form method="get" class="row g-2 mb-4">
+        <div class="col-md-3">
+            <input type="text" name="class_name" class="form-control"
+                   placeholder="Class (e.g. 1)"
+                   value="{{ selected_class }}">
+        </div>
 
-<!-- 🔹 FILTER + TABLE CARD -->
-<div class="card shadow-sm">
-  <div class="card-body">
+        <div class="col-md-3">
+            <input type="text" name="section" class="form-control"
+                   placeholder="Section (e.g. A)"
+                   value="{{ selected_section }}">
+        </div>
 
-    <!-- FILTER -->
-    <form method="get" class="row g-3 mb-4">
-      <div class="col-md-3">
-        <input class="form-control" name="class_name" placeholder="Class"
-               value="{{ selected_class|default:'' }}">
-      </div>
-      <div class="col-md-3">
-        <input class="form-control" name="section" placeholder="Section"
-               value="{{ selected_section|default:'' }}">
-      </div>
-      <div class="col-md-3">
-        <input type="date" class="form-control" name="date"
-               value="{{ selected_date|default:'' }}">
-      </div>
-      <div class="col-md-3 d-grid">
-        <button class="btn btn-primary">Filter</button>
-      </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">Filter</button>
+        </div>
     </form>
 
-    <!-- TABLE -->
-    <div class="table-responsive">
-      <table class="table table-bordered align-middle">
-        <thead class="table-dark">
-          <tr>
-            <th>Student</th>
-            <th>Class</th>
-            <th>Section</th>
-            <th>Date</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for r in records %}
-          <tr>
-            <td>{{ r.student.name }}</td>
-            <td>{{ r.student.class_name }}</td>
-            <td>{{ r.student.section }}</td>
-            <td>{{ r.date|date:"M d, Y" }}</td>
-            <td>
-              {% if r.status == "Present" %}
-                <span class="badge bg-success">Present</span>
-              {% else %}
-                <span class="badge bg-danger">Absent</span>
-              {% endif %}
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="5" class="text-center text-muted">
-              No attendance records found
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <!-- Summary -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <div class="card p-3 text-center">
+                <h6>Total</h6>
+                <h4>{{ total }}</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3 text-center bg-success text-white">
+                <h6>Present</h6>
+                <h4>{{ present }}</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3 text-center bg-danger text-white">
+                <h6>Absent</h6>
+                <h4>{{ absent }}</h4>
+            </div>
+        </div>
     </div>
 
-  </div>
-</div>
+    <!-- Table -->
+    <div class="card shadow-sm">
+        <div class="card-body table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Student</th>
+                        <th>Class</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
 
+                <tbody>
+                    {% for r in records %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ r.student.name }}</td>
+                        <td>{{ r.student.class_name }} {{ r.student.section }}</td>
+                        <td>{{ r.date }}</td>
+                        <td>
+                            {% if r.is_present %}
+                                <span class="badge bg-success">Present</span>
+                            {% else %}
+                                <span class="badge bg-danger">Absent</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">
+                            No attendance found
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
 {% endblock %}

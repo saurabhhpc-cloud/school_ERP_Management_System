@@ -1,31 +1,46 @@
 from django.db import models
+from schools.models import School
 from students.models import Student
 
+
 class FeeStructure(models.Model):
+    school = models.ForeignKey(
+        School,
+        on_delete=models.CASCADE,
+        related_name="fee_structures"
+    )
+
     class_name = models.CharField(max_length=20)
+    fee_type = models.CharField(max_length=50, default="Tuition")
     amount = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return f"Class {self.class_name} - ₹{self.amount}"
-
-
-class StudentFee(models.Model):
+        return f"{self.class_name} - {self.fee_type}"
+    
+class FeePayment(models.Model):
     STATUS_CHOICES = (
-        ("Paid", "Paid"),
-        ("Due", "Due"),
-        ("Partial", "Partial"),
+        ("paid", "Paid"),
+        ("pending", "Pending"),
     )
 
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="Due")
-    due_date = models.DateField()
+    PAYMENT_MODE = (
+        ("Cash", "Cash"),
+        ("Online", "Online"),
+    )
 
-    @property
-    def due_amount(self):
-        return self.total_amount - self.paid_amount
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        null=True,      
+        blank=True
+    )
 
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_mode = models.CharField(max_length=50)
+    status = models.CharField(max_length=20)  # paid / pending
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        verbose_name_plural = "Fees Management"
     def __str__(self):
-        return f"{self.student.full_name} - {self.status}"
-    
+        return f"{self.student} - {self.amount_paid}"
