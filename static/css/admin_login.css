@@ -1,0 +1,64 @@
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+}
+
+.login-wrapper {
+  display: flex;
+  height: 100vh;
+}
+
+/* LEFT SIDE */
+.login-left {
+  flex: 1;
+  background: #f4f6fb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-left img {
+  width: 80%;
+  max-width: 500px;
+}
+
+/* RIGHT SIDE */
+.login-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px;
+}
+
+.login-right h2 {
+  margin-bottom: 20px;
+}
+
+.login-right input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+}
+
+.login-right button {
+  padding: 12px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+/* ERROR */
+.error-box {
+  background: #ffe5e5;
+  color: #b30000;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-left: 4px solid red;
+}

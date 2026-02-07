@@ -15,44 +15,79 @@
   <strong>Students with Dues:</strong> {{ pending_students_count }}
 </div>
 
-<!-- ===== TOP SUMMARY CARDS ===== -->
+<!-- ===== KPI CARDS ===== -->
 <div class="row g-4 mb-4">
+
   <div class="col-md-3">
-    <div class="card card-stat bg-students text-center p-3">
+    <div class="card card-stat card-blue">
       <h6>Total Students</h6>
       <h2>{{ total_students }}</h2>
     </div>
   </div>
 
   <div class="col-md-3">
-    <div class="card card-stat bg-teachers text-center p-3">
+    <div class="card card-stat card-indigo">
       <h6>Total Teachers</h6>
       <h2>{{ total_teachers }}</h2>
     </div>
   </div>
+
+  <div class="col-md-3">
+    <div class="card card-stat card-sky">
+      <h6>Today Attendance</h6>
+      <h2>{{ today_percentage }}%</h2>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card card-stat card-blue">
+      <h6>Fees Collected</h6>
+      <h2>₹ {{ fees_collected|floatformat:0 }}</h2>
+    </div>
+  </div>
+
 </div>
 
 <!-- ===== CHARTS SECTION ===== -->
 <div class="row g-4 mb-4">
 
+  <!-- Result Chart -->
   <div class="col-md-6">
-    <div class="card card-stat p-4">
-      <h6 class="mb-3">📊 Class-wise Result</h6>
-      <canvas id="resultChart" height="120"></canvas>
+    <div class="card p-4 chart-card">
+      <h6 class="text-muted">📊 Class-wise Result</h6>
+      <canvas id="resultChart" height="260"></canvas>
     </div>
   </div>
 
+  <!-- Attendance Chart -->
   <div class="col-md-6">
-    <div class="card card-stat p-4">
-      <h6 class="mb-3">📈 Monthly Attendance</h6>
-      <canvas id="attendanceChart" height="120"></canvas>
+    <div class="card p-4 chart-card">
+      <h6 class="text-muted">📈 Attendance</h6>
+      <canvas id="attendanceChart" height="260"></canvas>
     </div>
   </div>
 
 </div>
 
-/* 📊 Class-wise Result Chart */
-if (document.getElementById("resultChart")) {
+<!-- ===== FEES CHART ===== -->
+<div class="row g-4 mb-4">
+  <div class="col-md-12">
+    <div class="card p-4 chart-card">
+      <h6 class="text-muted">💰 Fees Overview (Collected vs Due)</h6>
+      <canvas id="feesChart" height="240"></canvas>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  /* ======================
+     RESULT CHART
+     ====================== */
   new Chart(document.getElementById("resultChart"), {
     type: "bar",
     data: {
@@ -60,37 +95,67 @@ if (document.getElementById("resultChart")) {
       datasets: [{
         label: "Average Result %",
         data: {{ result_data|safe }},
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        y: { min: 0, max: 100 }
-      }
-    }
-  });
-}
-
-/* 📈 Monthly Attendance Chart */
-if (document.getElementById("attendanceChart")) {
-  new Chart(document.getElementById("attendanceChart"), {
-    type: "line",
-    data: {
-      labels: {{ attendance_labels|default:"[]"|safe }},
-      datasets: [{
-        label: "Attendance %",
-        data: {{ attendance_data|default:"[]"|safe }},
-        borderWidth: 3,
-        tension: 0.4
+        backgroundColor: "rgba(59,130,246,0.7)",
+        borderRadius: 10
       }]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       scales: {
         y: { min: 0, max: 100 }
       }
     }
   });
-}
+
+  /* ======================
+     ATTENDANCE CHART
+     ====================== */
+  new Chart(document.getElementById("attendanceChart"), {
+    type: "line",
+    data: {
+      labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      datasets: [{
+        label: "Attendance %",
+        data: [92, 88, 95, 90, 93, 89],   // demo (safe)
+        borderColor: "rgba(14,165,233,0.9)",
+        backgroundColor: "rgba(14,165,233,0.2)",
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { min: 0, max: 100 }
+      }
+    }
+  });
+
+  /* ======================
+     FEES CHART (DONUT)
+     ====================== */
+  new Chart(document.getElementById("feesChart"), {
+    type: "doughnut",
+    data: {
+      labels: {{ fees_chart_labels|safe }},
+      datasets: [{
+        data: {{ fees_chart_data|safe }},
+        backgroundColor: [
+          "rgba(37,99,235,0.85)",  // collected
+          "rgba(239,68,68,0.85)"   // due
+        ],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { position: "bottom" }
+      }
+    }
+  });
+
+});
 </script>
 {% endblock %}

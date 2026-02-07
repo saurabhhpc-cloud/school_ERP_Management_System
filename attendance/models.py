@@ -9,11 +9,6 @@ ATTENDANCE_STATUS = (
 )
 
 class Attendance(models.Model):
-    school = models.ForeignKey(
-        School,
-        on_delete=models.CASCADE,
-        related_name="attendances"
-    )
 
     student = models.ForeignKey(
         StudentProfile,
@@ -38,7 +33,7 @@ class Attendance(models.Model):
     class Meta:
         unique_together = ("student", "date")
         ordering = ["-date"]
-        verbose_name_plural = "Student Attendance"
+
 
     def __str__(self):
         return f"{self.student} - {self.date}"

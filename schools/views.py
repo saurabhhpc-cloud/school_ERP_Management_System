@@ -183,7 +183,54 @@ def school_dashboard(request):
     notices = get_notices_for_user(user).order_by("-created_at")[:3]
 
     # ======================
-    # CLASS-WISE RESULT ANALYTICS
+    # STUDENTS & TEACHERS
+    # ======================
+    total_students = StudentProfile.objects.filter(school=school).count()
+    total_teachers = Teacher.objects.filter(user__school=school).count()
+
+    # ======================
+    # TODAY ATTENDANCE
+    # ======================
+    today_present = Attendance.objects.filter(
+        student__school=school,
+        date=today,
+        status="P"
+    ).count()
+
+    today_percentage = (
+        round((today_present / total_students) * 100, 2)
+        if total_students else 0
+    )
+
+    # ======================
+    # FEES
+    # ======================
+    fees_collected = (
+        FeePayment.objects.filter(
+            school=school,
+            status="paid"
+        ).aggregate(total=Sum("amount_paid"))["total"] or 0
+    )
+
+    pending_fees_amount = (
+        FeePayment.objects.filter(
+            school=school,
+            status="pending"
+        ).aggregate(total=Sum("amount_paid"))["total"] or 0
+    )
+
+    pending_students_count = (
+        FeePayment.objects.filter(
+            school=school,
+            status="pending"
+        )
+        .values("student")
+        .distinct()
+        .count()
+    )
+
+    # ======================
+    # CLASS-WISE RESULT CHART
     # ======================
     result_qs = (
         Result.objects
@@ -199,88 +246,39 @@ def school_dashboard(request):
         .order_by("exam__class_name")
     )
 
-    result_labels = []
-    result_data = []
-
-    for row in result_qs:
-        result_labels.append(row["exam__class_name"])
-        result_data.append(round(row["avg_percentage"], 2))
+    result_labels = [r["exam__class_name"] for r in result_qs]
+    result_data = [round(r["avg_percentage"], 2) for r in result_qs]
 
     # ======================
-    # STUDENTS & TEACHERS
+    # FEES CHART DATA
     # ======================
-    total_students = StudentProfile.objects.filter(school=school).count()
-    total_teachers = Teacher.objects.filter(user__school=school).count()
-
-    # ======================
-    # TODAY ATTENDANCE
-    # ======================
-    today_present = Attendance.objects.filter(
-        student__school=school,
-        date=today,
-        status="P"
-    ).count()
-
-    today_absent = total_students - today_present
-    today_percentage = (
-        round((today_present / total_students) * 100, 2)
-        if total_students else 0
-    )
-
-    # ======================
-    # FEES
-    # ======================
-    fees_collected = FeePayment.objects.filter(
-        school=school,
-        status="paid"
-    ).aggregate(total=Sum("amount_paid"))["total"] or 0
-
-    pending_fees_amount = FeePayment.objects.filter(
-        school=school,
-        status="pending"
-    ).aggregate(total=Sum("amount_paid"))["total"] or 0
-
-    pending_students_count = (
-        FeePayment.objects.filter(
-            school=school,
-            status="pending"
-        )
-        .values("student")
-        .distinct()
-        .count()
-    )
-
-    # ======================
-    # ADMISSIONS
-    # ======================
-    admissions = Admission.objects.filter(student__school=school)
+    fees_chart_labels = ["Collected Fees", "Due Fees"]
+    fees_chart_data = [
+        float(fees_collected),
+        float(pending_fees_amount),
+    ]
 
     context = {
+        # Notices
         "notices": notices,
 
+        # KPIs
         "total_students": total_students,
         "total_teachers": total_teachers,
-
-        "today_total": total_students,
-        "today_present": today_present,
-        "today_absent": today_absent,
         "today_percentage": today_percentage,
 
+        # Fees
         "fees_collected": float(fees_collected),
         "pending_fees_amount": float(pending_fees_amount),
         "pending_students_count": pending_students_count,
 
-        "total_admissions": admissions.count(),
-        "enquiry_count": admissions.filter(admission_status="ENQUIRY").count(),
-        "applied_count": admissions.filter(admission_status="APPLIED").count(),
-        "confirmed_count": admissions.filter(admission_status="CONFIRMED").count(),
-        "rejected_count": admissions.filter(admission_status="REJECTED").count(),
-        "pending_admissions": admissions.filter(admission_status="APPLIED")[:5],
-
-        # 🔥 CHART DATA
+        # Charts
         "result_labels": result_labels,
         "result_data": result_data,
+        "fees_chart_labels": fees_chart_labels,
+        "fees_chart_data": fees_chart_data,
     }
 
     return render(request, "school/school_dashboard.html", context)
+
 
