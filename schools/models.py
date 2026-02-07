@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-
+from .middleware import get_current_school
 
 class School(models.Model):
     name = models.CharField(max_length=255)
@@ -10,6 +10,25 @@ class School(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class SchoolBaseModel(models.Model):
+    school = models.ForeignKey(
+        School,
+        on_delete=models.CASCADE,
+        editable=False
+    )
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        if not self.school:
+            school = get_current_school()
+            if not school:
+                raise ValueError("School context not available")
+            self.school = school
+        super().save(*args, **kwargs)
 
 
 class UserProfile(models.Model):

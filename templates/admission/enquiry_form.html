@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>New Admission Enquiry</h3>
+
+<form method="post">
+  {% csrf_token %}
+
+  <input name="first_name" placeholder="First Name" required><br>
+  <input name="last_name" placeholder="Last Name" required><br>
+
+  <select name="gender">
+    <option value="M">Male</option>
+    <option value="F">Female</option>
+    <option value="O">Other</option>
+  </select><br>
+
+  <input type="date" name="dob" required><br>
+
+  <input name="father_name" placeholder="Father Name" required><br>
+  <input name="mobile" placeholder="Mobile Number" required><br>
+
+  <input name="academic_year" placeholder="2026-27" required><br>
+  <input name="class_applied" placeholder="Class" required><br>
+
+  <button type="submit">Create Enquiry</button>
+</form>
+
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "school/base_school.html" %}
+
+{% block content %}
+<h4>Import Teachers (CSV)</h4>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="file" class="form-control mb-3" required>
+    <button class="btn btn-primary">Upload</button>
+</form>
+
+<p class="mt-3 text-muted">
+    Default password: <b>Teacher@123</b>
+</p>
+{% endblock %}

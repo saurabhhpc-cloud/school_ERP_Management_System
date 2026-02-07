@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.html import format_html
-from students.models import Student
+from admission.models import StudentProfile
 
 class Result(models.Model):
     school = models.ForeignKey(

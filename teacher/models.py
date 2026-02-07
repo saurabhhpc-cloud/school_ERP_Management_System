@@ -8,14 +8,8 @@ class Teacher(models.Model):
     )
     class_name = models.CharField(max_length=10)
     section = models.CharField(max_length=5)
+    subject = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.user.username
 
-class Student(models.Model):
-    teacher = models.ForeignKey(
-        Teacher,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )

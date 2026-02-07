@@ -1,0 +1,34 @@
+from admission.models import StudentProfile
+from .models import Attendance
+
+def mark_attendance(
+    *,
+    school,
+    teacher,
+    att_date,
+    class_name,
+    section,
+    attendance_data,
+):
+    students = StudentProfile.objects.filter(
+        is_active=True,
+        roll_number__isnull=False,
+        admission__class_applied=class_name,
+        admission__section=section,
+        admission__admission_status="CONFIRMED",
+    ).order_by("roll_number")
+
+    for student in students:
+        status = attendance_data.get(student.id)
+        if status not in ("P", "A"):
+            continue
+
+        Attendance.objects.update_or_create(
+            school=school,
+            student=student,
+            date=att_date,
+            defaults={
+                "status": status,
+                "teacher": teacher,
+            }
+        )

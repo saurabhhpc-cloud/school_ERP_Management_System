@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>
+  Admission Detail —
+  {{ admission.student.first_name }} {{ admission.student.last_name }}
+</h3>
+
+<p><b>Status:</b> {{ admission.admission_status }}</p>
+<p><b>Class:</b> {{ admission.class_applied }}</p>
+<p><b>Academic Year:</b> {{ admission.academic_year }}</p>
+
+<hr>
+
+<!-- STATUS BASED ACTION BUTTONS -->
+
+{% if admission.admission_status == "ENQUIRY" %}
+  {% if request.user.groups.all.0.name == "Admin" %}
+    <a href="{% url 'admission:mark_applied' admission.id %}"
+       class="btn btn-warning">
+       Mark Applied
+    </a>
+  {% endif %}
+{% endif %}
+
+{% if admission.admission_status == "APPLIED" %}
+  {% if request.user.groups.all.0.name == "Principal" %}
+    <a href="{% url 'admission:confirm' admission.id %}"
+       class="btn btn-success">
+       Confirm Admission
+    </a>
+
+    <a href="{% url 'admission:reject' admission.id %}"
+       class="btn btn-danger">
+       Reject
+    </a>
+  {% endif %}
+{% endif %}
+
+{% if admission.admission_status == "CONFIRMED" %}
+  <p style="color: green;"><b>✔ Admission Confirmed</b></p>
+{% endif %}
+
+{% if admission.admission_status == "REJECTED" %}
+  <p style="color: red;"><b>✖ Admission Rejected</b></p>
+{% endif %}
+
+{% if admission.student.roll_number %}
+  <p>
+    <b>Roll Number:</b>
+    {{ admission.student.roll_number }}
+  </p>
+{% endif %}
+
+{% endblock %}

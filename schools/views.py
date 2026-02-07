@@ -5,7 +5,9 @@ from django.db.models.functions import ExtractMonth, TruncMonth
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 import calendar
-from students.models import Student
+from django.db.models import Avg, F, FloatField, ExpressionWrapper
+from exams.models import Result
+from admission.models import StudentProfile
 from fees.models import FeePayment
 from attendance.models import Attendance
 from django.http import HttpResponse
@@ -13,18 +15,22 @@ from openpyxl import Workbook
 from reportlab.pdfgen import canvas
 from django.db.models import Count, Q
 from datetime import date, timedelta
+from admission.models import Admission
+from admission.models import StudentProfile
+from teacher.models import Teacher
 
+from notices.views import get_notices_for_user
 
 @login_required
 def today_attendance(request):
     school = request.user.school
     today = timezone.now().date()
 
-    total_students = Student.objects.filter(school=school).count()
+    total_students = StudentProfile.objects.filter(school=school).count()
     present = Attendance.objects.filter(
         student__school=school,
         date=today,
-        is_present=True
+        status="P"
     ).count()
 
     absent = total_students - present
@@ -168,155 +174,113 @@ def export_fees_pdf(request):
 @login_required
 def school_dashboard(request):
     school = request.user.school
-    User = get_user_model()
     user = request.user
-
     today = date.today()
-    this_month = today.replace(day=1)
-    last_month = (this_month - timedelta(days=1)).replace(day=1)
 
     # ======================
-    # ROLE PERMISSIONS
+    # NOTICES
     # ======================
-    can_import_attendance = (
-        user.is_superuser or
-        user.groups.filter(name__in=["Teacher", "SchoolAdmin"]).exists()
-    )
+    notices = get_notices_for_user(user).order_by("-created_at")[:3]
 
-    can_import_students = (
-        user.is_superuser or
-        user.groups.filter(name="SchoolAdmin").exists()
-    )
-
-    # =====================
-    # AI ATTENDANCE INSIGHT
-    # =====================
-    ai_insight = None
-
-    classes = (
-        Attendance.objects
-        .filter(student__school=school)
-        .values_list("student__class_name", flat=True)
-        .distinct()
-    )
-
-    for class_name in classes:
-        this_month_present = Attendance.objects.filter(
-            student__school=school,
-            student__class_name=class_name,
-            date__gte=this_month,
-            is_present=True
-        ).count()
-
-        last_month_present = Attendance.objects.filter(
-            student__school=school,
-            student__class_name=class_name,
-            date__gte=last_month,
-            date__lt=this_month,
-            is_present=True
-        ).count()
-
-        if last_month_present > 0:
-            change = round(
-                ((this_month_present - last_month_present) / last_month_present) * 100,
-                2
+    # ======================
+    # CLASS-WISE RESULT ANALYTICS
+    # ======================
+    result_qs = (
+        Result.objects
+        .filter(school=school)
+        .annotate(
+            percentage=ExpressionWrapper(
+                (F("marks_obtained") / F("max_marks")) * 100,
+                output_field=FloatField()
             )
+        )
+        .values("exam__class_name")
+        .annotate(avg_percentage=Avg("percentage"))
+        .order_by("exam__class_name")
+    )
 
-            if change < -5:
-                ai_insight = {
-                    "type": "danger",
-                    "message": f"⚠ Attendance dropped by {abs(change)}% in Class {class_name}"
-                }
-                break
-            elif change > 5:
-                ai_insight = {
-                    "type": "success",
-                    "message": f"✅ Attendance improved by {change}% in Class {class_name}"
-                }
-                break
+    result_labels = []
+    result_data = []
 
-    # =================
-    # BASIC STATISTICS
-    # =================
-    total_students = Student.objects.filter(school=school).count()
+    for row in result_qs:
+        result_labels.append(row["exam__class_name"])
+        result_data.append(round(row["avg_percentage"], 2))
 
+    # ======================
+    # STUDENTS & TEACHERS
+    # ======================
+    total_students = StudentProfile.objects.filter(school=school).count()
+    total_teachers = Teacher.objects.filter(user__school=school).count()
+
+    # ======================
+    # TODAY ATTENDANCE
+    # ======================
     today_present = Attendance.objects.filter(
         student__school=school,
         date=today,
-        is_present=True
+        status="P"
     ).count()
 
     today_absent = total_students - today_present
-
     today_percentage = (
         round((today_present / total_students) * 100, 2)
         if total_students else 0
     )
 
-    total_teachers = User.objects.filter(
-        is_teacher=True,
-        school=school
-    ).count()
-
-    # =========
-    # FEES DATA
-    # =========
+    # ======================
+    # FEES
+    # ======================
     fees_collected = FeePayment.objects.filter(
         school=school,
         status="paid"
     ).aggregate(total=Sum("amount_paid"))["total"] or 0
 
-    pending_fees = FeePayment.objects.filter(
+    pending_fees_amount = FeePayment.objects.filter(
         school=school,
         status="pending"
     ).aggregate(total=Sum("amount_paid"))["total"] or 0
 
-    # ====================
-    # MONTHLY ATTENDANCE
-    # ====================
-    attendance_qs = (
-        Attendance.objects
-        .filter(student__school=school)
-        .annotate(month=ExtractMonth("date"))
-        .values("month")
-        .annotate(
-            total=Count("id"),
-            present=Count("id", filter=Q(is_present=True))
+    pending_students_count = (
+        FeePayment.objects.filter(
+            school=school,
+            status="pending"
         )
-        .order_by("month")
+        .values("student")
+        .distinct()
+        .count()
     )
 
-    attendance_labels = []
-    attendance_data = []
+    # ======================
+    # ADMISSIONS
+    # ======================
+    admissions = Admission.objects.filter(student__school=school)
 
-    for row in attendance_qs:
-        percent = round((row["present"] / row["total"]) * 100, 2)
-        attendance_labels.append(calendar.month_abbr[row["month"]])
-        attendance_data.append(percent)
-
-    # =========
-    # CONTEXT
-    # =========
     context = {
+        "notices": notices,
+
         "total_students": total_students,
         "total_teachers": total_teachers,
-
-        "fees_collected": float(fees_collected),
-        "pending_fees_amount": float(pending_fees),
-
-        "attendance_labels": attendance_labels,
-        "attendance_data": attendance_data,
 
         "today_total": total_students,
         "today_present": today_present,
         "today_absent": today_absent,
         "today_percentage": today_percentage,
 
-        "ai_insight": ai_insight,
+        "fees_collected": float(fees_collected),
+        "pending_fees_amount": float(pending_fees_amount),
+        "pending_students_count": pending_students_count,
 
-        # 🔐 permissions for sidebar
-        "can_import_attendance": can_import_attendance,
-        "can_import_students": can_import_students,
+        "total_admissions": admissions.count(),
+        "enquiry_count": admissions.filter(admission_status="ENQUIRY").count(),
+        "applied_count": admissions.filter(admission_status="APPLIED").count(),
+        "confirmed_count": admissions.filter(admission_status="CONFIRMED").count(),
+        "rejected_count": admissions.filter(admission_status="REJECTED").count(),
+        "pending_admissions": admissions.filter(admission_status="APPLIED")[:5],
+
+        # 🔥 CHART DATA
+        "result_labels": result_labels,
+        "result_data": result_data,
     }
 
     return render(request, "school/school_dashboard.html", context)
+

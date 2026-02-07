@@ -1,54 +1,32 @@
-{% extends "school/base_school.html" %}
-
-{% block title %}Teacher Attendance{% endblock %}
+{% extends "teacher/base_teacher.html" %}
 
 {% block content %}
-<div class="container-fluid">
+<h4 class="mb-4">My Class Attendance</h4>
 
-    <h4 class="mb-3">
-        <i class="bi bi-graph-up"></i> Teacher Attendance
-    </h4>
-
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
-
-            <table class="table table-bordered align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>Date</th>
-                        <th>Student</th>
-                        <th>Class</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for r in records %}
-                    <tr>
-                        <td>{{ r.date }}</td>
-                        <td>{{ r.student.name }}</td>
-                        <td>{{ r.student.class_name }} {{ r.student.section }}</td>
-                        <td>
-                            {% if r.is_present %}
-                                <span class="badge bg-success">Present</span>
-                            {% else %}
-                                <span class="badge bg-danger">Absent</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4" class="text-center text-muted">
-                            No attendance records found
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-
-            </table>
-
-        </div>
-    </div>
-
-</div>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Student</th>
+            <th>Class</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in records %}
+        <tr>
+            <td>{{ a.date }}</td>
+            <td>{{ a.student.name }}</td>
+            <td>{{ a.student.class_name }} {{ a.student.section }}</td>
+            <td>
+                {% if a.is_present %}
+                    <span class="badge bg-success">Present</span>
+                {% else %}
+                    <span class="badge bg-danger">Absent</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

@@ -1,9 +1,13 @@
 {% extends "base.html" %}
+
 {% block title %}Parent Dashboard{% endblock %}
 
 {% block content %}
 
 <h3 class="fw-bold mb-4">👨‍👩‍👧 Parent Dashboard</h3>
+
+<!-- 🔔 NOTICE BOARD -->
+{% include "includes/notice_board.html" %}
 
 <!-- 🔝 TOP SUMMARY CARDS -->
 <div class="row mb-4 g-3">
@@ -49,6 +53,7 @@
   </div>
 
 </div>
+
 <!-- 👶 CHILD WISE CARDS -->
 <div class="row g-3 mt-2">
 
@@ -59,13 +64,7 @@
 
         <h5 class="fw-semibold mb-1">{{ child.name }}</h5>
         <p class="text-muted mb-2">Class {{ child.class }}</p>
-  </div>
-<a href="{% url 'fees_dashboard' %}" class="btn btn-outline-secondary btn-sm">
-    ← Back to Dashboard
-</a>
-  View Fees
-</a>
-</a>
+
         <!-- Attendance -->
         <label class="small fw-semibold">Attendance</label>
         {% if child.attendance is not None %}
@@ -103,4 +102,5 @@
   {% endfor %}
 
 </div>
+
 {% endblock %}

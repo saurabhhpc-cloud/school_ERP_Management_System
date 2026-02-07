@@ -1,0 +1,30 @@
+
+<div class="card shadow-sm">
+  <div class="card-header bg-primary text-white">
+    <i class="bi bi-megaphone"></i> Notices
+  </div>
+
+  <ul class="list-group list-group-flush">
+    {% for notice in notices %}
+    <li class="list-group-item">
+      <strong>{{ notice.title }}</strong>
+
+      {% if notice.created_at|timesince < "1 day" %}
+        <span class="badge bg-danger ms-1">NEW</span>
+      {% endif %}
+
+      <p class="mb-1 small text-muted">
+        {{ notice.description|truncatewords:20 }}
+      </p>
+
+      <small class="text-secondary">
+        {{ notice.publish_date }}
+      </small>
+    </li>
+    {% empty %}
+    <li class="list-group-item text-muted">
+      No notices available
+    </li>
+    {% endfor %}
+  </ul>
+</div>

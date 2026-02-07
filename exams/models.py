@@ -15,6 +15,8 @@ class Exam(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.class_name})"
+
+
 class Subject(models.Model):
     school = models.ForeignKey(
         "schools.School",
@@ -27,6 +29,9 @@ class Subject(models.Model):
     def __str__(self):
         return f"{self.name} ({self.class_name})"
 
+
+from admission.models import StudentProfile
+
 class Result(models.Model):
     school = models.ForeignKey(
         "schools.School",
@@ -34,15 +39,16 @@ class Result(models.Model):
         related_name="results"
     )
     student = models.ForeignKey(
-        "students.Student",
-        on_delete=models.CASCADE
+        StudentProfile,
+        on_delete=models.CASCADE,
+        related_name="results"
     )
     exam = models.ForeignKey(
-        "exams.Exam",
+        Exam,
         on_delete=models.CASCADE
     )
     subject = models.ForeignKey(
-        "exams.Subject",
+        Subject,
         on_delete=models.CASCADE
     )
     marks_obtained = models.FloatField()

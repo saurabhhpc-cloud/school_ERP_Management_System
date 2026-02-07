@@ -9,7 +9,7 @@ from datetime import datetime
 import openpyxl
 from django.db.models.functions import TruncMonth
 from .models import Attendance
-from students.models import Student
+from admission.models import StudentProfile
 from teacher.models import Teacher
 
 
@@ -73,7 +73,7 @@ def import_attendance_excel(request):
             except ValueError:
                 continue
 
-            student = Student.objects.filter(
+            student = StudentProfile.objects.filter(
                 school=school,
                 name__iexact=str(name).strip(),
                 class_name=str(class_name).strip(),
@@ -133,8 +133,8 @@ def class_wise_attendance(request):
         {
             "records": records.order_by("-date"),
             "total": records.count(),
-            "present": records.filter(is_present=True).count(),
-            "absent": records.filter(is_present=False).count(),
+            "present": records.filter(status="P").count(),
+            "absent": records.filter(status="A").count(),
             "selected_class": selected_class,
             "selected_section": selected_section,
             "selected_date": selected_date,
@@ -153,7 +153,7 @@ def attendance_percentage(request):
     selected_class = request.GET.get("class_name")
     selected_section = request.GET.get("section")
 
-    students = Student.objects.filter(school=school)
+    students = StudentProfile.objects.filter(school=school)
 
     if selected_class:
         students = students.filter(class_name=selected_class)
@@ -166,7 +166,7 @@ def attendance_percentage(request):
         .values("student")
         .annotate(
             total=Count("id"),
-            present=Count("id", filter=Q(is_present=True))
+            present=Count("id", filter=Q(status="P"))
         )
     )
 
@@ -214,8 +214,8 @@ def today_summary(request):
     )
 
     total_students = qs.values("student").distinct().count()
-    present = qs.filter(is_present=True).count()
-    absent = qs.filter(is_present=False).count()
+    present = qs.filter(status="P").count()
+    absent = qs.filter(status="A").count()
 
     attendance_percent = round(
         (present / total_students) * 100, 2
@@ -258,7 +258,7 @@ def attendance_overview(request):
         end_date = date(start_date.year, start_date.month + 1, 1)
 
     class_sections = (
-        Student.objects
+        StudentProfile.objects
         .filter(school=school)
         .values("class_name", "section")
         .distinct()
@@ -283,7 +283,7 @@ def attendance_overview(request):
         )
 
         total = qs.count()
-        present = qs.filter(is_present=True).count()
+        present = qs.filter(status="P").count()
         percent = round((present / total) * 100, 2) if total else 0
 
         overview.append({
@@ -333,7 +333,7 @@ def low_attendance_alerts(request):
 
     alerts = []
 
-    students = Student.objects.filter(school=school)
+    students = StudentProfile.objects.filter(school=school)
 
     for student in students:
         qs = Attendance.objects.filter(
@@ -343,7 +343,7 @@ def low_attendance_alerts(request):
         )
 
         total = qs.count()
-        present = qs.filter(is_present=True).count()
+        present = qs.filter(status="P").count()
 
         if total == 0:
             continue
@@ -375,7 +375,7 @@ def student_monthly_attendance(request):
     school = request.user.school
     student_id = request.GET.get("student")
 
-    students = Student.objects.filter(school=school)
+    students = StudentProfile.objects.filter(school=school)
 
     labels = []
     data = []
@@ -402,7 +402,7 @@ def student_monthly_attendance(request):
                 )
 
                 total = qs.count()
-                present = qs.filter(is_present=True).count()
+                present = qs.filter(status="P").count()
                 percent = round((present / total) * 100, 2) if total else 0
 
                 labels.append(start.strftime("%b"))
@@ -424,7 +424,7 @@ def mark_attendance(request):
     teacher = Teacher.objects.get(user=request.user)
     today = timezone.now().date()
 
-    students = Student.objects.filter(
+    students = StudentProfile.objects.filter(
         class_name=teacher.class_name,
         section=teacher.section,
         school=request.user.school

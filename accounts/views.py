@@ -11,16 +11,13 @@ def user_login(request):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
-
-            # ✅ ROLE BASED REDIRECT
             return redirect("post-login")
 
-        else:
-            return render(
-                request,
-                "accounts/login.html",
-                {"error": "Invalid username or password"}
-            )
+        return render(
+            request,
+            "accounts/login.html",
+            {"error": "Invalid username or password"}
+        )
 
     return render(request, "accounts/login.html")
 
@@ -30,7 +27,7 @@ def post_login_redirect(request):
     user = request.user
 
     if user.groups.filter(name="Teacher").exists():
-        return redirect("teachers:dashboard")
+        return redirect("teacher:dashboard")
 
     if user.groups.filter(name="SchoolAdmin").exists() or user.is_superuser:
         return redirect("schools:dashboard")

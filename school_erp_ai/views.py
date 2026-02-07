@@ -1,14 +1,14 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Count
-from students.models import Student
+from admission.models import StudentProfile
 from fees.models import FeePayment
 from attendance.models import Attendance
 
 @login_required
 def saas_dashboard(request):
 
-    total_students = Student.objects.count()
+    total_students = StudentProfile.objects.count()
 
     fees_collected = FeePayment.objects.filter(
         status="PAID"

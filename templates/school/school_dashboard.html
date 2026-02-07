@@ -3,9 +3,20 @@
 
 {% block content %}
 
+<h3 class="fw-bold mb-3">School Admin Dashboard</h3>
+
+<!-- 🔔 NOTICE BOARD -->
+{% include "includes/notice_board.html" %}
+
+<!-- 💰 FEES QUICK STATS -->
+<div class="mb-3">
+  <strong>Paid:</strong> ₹ {{ fees_collected|floatformat:0 }} |
+  <strong>Pending:</strong> ₹ {{ pending_fees_amount|floatformat:0 }} |
+  <strong>Students with Dues:</strong> {{ pending_students_count }}
+</div>
+
 <!-- ===== TOP SUMMARY CARDS ===== -->
 <div class="row g-4 mb-4">
-
   <div class="col-md-3">
     <div class="card card-stat bg-students text-center p-3">
       <h6>Total Students</h6>
@@ -19,85 +30,67 @@
       <h2>{{ total_teachers }}</h2>
     </div>
   </div>
-
-  <div class="col-md-3">
-    <div class="card card-stat bg-fees text-center p-3">
-      <h6><i class="bi bi-cash"></i> Fees Status</h6>
-      <h5 class="mt-2">Paid ₹{{ paid_fees|floatformat:0 }}</h5>
-      <small>Pending ₹{{ pending_fees_amount|floatformat:0 }}</small>
-    </div>
-  </div>
-
-  <div class="col-md-3">
-    <div class="card card-stat bg-pending text-center p-3">
-      <h6>Pending Fees</h6>
-      <h2>₹ {{ pending_fees|floatformat:0 }}</h2>
-    </div>
-  </div>
-
 </div>
-
-<!-- ===== AI INSIGHT ===== -->
-{% if ai_insight %}
-<div class="alert alert-{{ ai_insight.type }} mb-4">
-  {{ ai_insight.message }}
-</div>
-{% endif %}
 
 <!-- ===== CHARTS SECTION ===== -->
 <div class="row g-4 mb-4">
 
-  <!-- Monthly Attendance -->
-  <div class="col-md-7">
-    <div class="card card-stat p-4" style="height:340px;">
-      <h6 class="mb-3">Monthly Attendance (%)</h6>
-      <canvas id="attendanceChart"></canvas>
+  <div class="col-md-6">
+    <div class="card card-stat p-4">
+      <h6 class="mb-3">📊 Class-wise Result</h6>
+      <canvas id="resultChart" height="120"></canvas>
     </div>
   </div>
 
-  <!-- Today Attendance -->
-  <div class="col-md-5">
-    <div class="card card-stat p-4 text-center" style="height:340px;">
-      <h6 class="mb-3">Today Attendance</h6>
-      <p>Total: <strong>{{ today_total }}</strong></p>
-      <p class="text-success fw-semibold">Present: {{ today_present }}</p>
-      <p class="text-danger fw-semibold">Absent: {{ today_absent }}</p>
-      <h4 class="mt-3">{{ today_percentage }}%</h4>
+  <div class="col-md-6">
+    <div class="card card-stat p-4">
+      <h6 class="mb-3">📈 Monthly Attendance</h6>
+      <canvas id="attendanceChart" height="120"></canvas>
     </div>
   </div>
 
 </div>
 
-<!-- ===== ACTION BUTTONS ===== -->
-<div class="d-flex gap-3 flex-wrap mt-4">
-  <a href="{% url 'schools:export-attendance-excel' %}" class="btn btn-success">📊 Attendance Excel</a>
-  <a href="{% url 'schools:export-attendance-pdf' %}" class="btn btn-danger">📄 Attendance PDF</a>
-  <a href="{% url 'schools:export-fees-excel' %}" class="btn btn-success">💰 Fees Excel</a>
-  <a href="{% url 'schools:export-fees-pdf' %}" class="btn btn-danger">💳 Fees PDF</a>
-</div>
-
-{% endblock %}
-
-{% block extra_js %}
-<script>
-/* Monthly Attendance Chart */
-new Chart(document.getElementById("attendanceChart"), {
-    type: "line",
+/* 📊 Class-wise Result Chart */
+if (document.getElementById("resultChart")) {
+  new Chart(document.getElementById("resultChart"), {
+    type: "bar",
     data: {
-        labels: {{ attendance_labels|safe }},
-        datasets: [{
-            label: "Attendance %",
-            data: {{ attendance_data|safe }},
-            borderWidth: 3,
-            tension: 0.4
-        }]
+      labels: {{ result_labels|safe }},
+      datasets: [{
+        label: "Average Result %",
+        data: {{ result_data|safe }},
+        borderWidth: 1
+      }]
     },
     options: {
-        responsive: true,
-        scales: {
-            y: { min: 0, max: 100 }
-        }
+      scales: {
+        y: { min: 0, max: 100 }
+      }
     }
-});
+  });
+}
+
+/* 📈 Monthly Attendance Chart */
+if (document.getElementById("attendanceChart")) {
+  new Chart(document.getElementById("attendanceChart"), {
+    type: "line",
+    data: {
+      labels: {{ attendance_labels|default:"[]"|safe }},
+      datasets: [{
+        label: "Attendance %",
+        data: {{ attendance_data|default:"[]"|safe }},
+        borderWidth: 3,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { min: 0, max: 100 }
+      }
+    }
+  });
+}
 </script>
 {% endblock %}

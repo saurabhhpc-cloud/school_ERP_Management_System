@@ -2,7 +2,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Sum
 from .models import FeePayment
-from students.models import Student
+from admission.models import StudentProfile
 
 from django.http import HttpResponse
 
@@ -21,7 +21,7 @@ def send_bulk_fee_reminders(request):
 
 
 def fees_dashboard(request):
-    total_students = Student.objects.count()
+    total_students = StudentProfile.objects.count()
 
     total_paid = FeePayment.objects.filter(
         status="paid"

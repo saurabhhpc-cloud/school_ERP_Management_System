@@ -1,6 +1,6 @@
 from datetime import date
 from calendar import monthrange
-
+from admission.models import StudentProfile
 from django.db.models import Count, Q
 from .models import Attendance, AttendanceSummary
 
@@ -21,7 +21,7 @@ def generate_monthly_attendance_summary(school, year, month):
     present_records = Attendance.objects.filter(
         school=school,
         date__range=(start_date, end_date),
-        is_present=True
+        status="P"
     ).count()
 
     percentage = 0
@@ -35,3 +35,12 @@ def generate_monthly_attendance_summary(school, year, month):
     )
 
     return percentage
+
+def get_attendance_eligible_students(class_name, academic_year):
+    return StudentProfile.objects.filter(
+        is_active=True,
+        roll_number__isnull=False,
+        admission__class_applied=class_name,
+        admission__academic_year=academic_year,
+        admission__admission_status="CONFIRMED",
+    ).select_related("admission", "parent").order_by("roll_number")

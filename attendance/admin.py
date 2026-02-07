@@ -1,15 +1,11 @@
 from django.contrib import admin
-from django.contrib.admin.sites import AlreadyRegistered
 from django import forms
+from django.contrib.admin.sites import AlreadyRegistered
 
 from school_erp_ai.admin_site import admin_site
-from .models import Attendance, AttendanceSummary
-from students.models import Student
+from .models import Attendance
+from admission.models import StudentProfile
 
-
-# ===============================
-# Admin Form
-# ===============================
 class AttendanceAdminForm(forms.ModelForm):
 
     class Meta:
@@ -19,50 +15,24 @@ class AttendanceAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Default empty
-        self.fields["student"].queryset = Student.objects.none()
+        self.fields["student"].queryset = StudentProfile.objects.filter(
+            is_active=True,
+            roll_number__isnull=False,
+            admission__admission_status="CONFIRMED"
+        ).order_by("roll_number")
 
-        # Filter students by class_name (from POST data)
-        if "class_name" in self.data:
-            try:
-                class_id = int(self.data.get("class_name"))
-                self.fields["student"].queryset = Student.objects.filter(
-                    class_name_id=class_id
-                )
-            except (ValueError, TypeError):
-                pass
-
-        # Edit case
-        elif self.instance.pk:
-            self.fields["student"].queryset = Student.objects.filter(
-                class_name=self.instance.student.class_name
-            )
-
-
-# ===============================
-# Admin Model
-# ===============================
+@admin.register(Attendance)
 class AttendanceAdmin(admin.ModelAdmin):
     form = AttendanceAdminForm
+    list_display = ("student", "date", "status", "teacher")
+    list_filter = ("date", "status", "teacher")
+    search_fields = (
+        "student__first_name",
+        "student__last_name",
+        "student__roll_number",
+    )
 
-    list_display = ("student", "date", "is_present")
-    list_filter = ("date", "is_present")
-    search_fields = ("student__name",)
-
-
-# ===============================
-# SAFE REGISTER
-# ===============================
 try:
     admin_site.register(Attendance, AttendanceAdmin)
-except AlreadyRegistered:
-    pass
-class AttendanceSummaryAdmin(admin.ModelAdmin):
-    list_display = ("school", "month", "percentage")
-    list_filter = ("school", "month")
-
-
-try:
-    admin_site.register(AttendanceSummary, AttendanceSummaryAdmin)
 except AlreadyRegistered:
     pass

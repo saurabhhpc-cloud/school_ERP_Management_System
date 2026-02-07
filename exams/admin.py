@@ -3,7 +3,7 @@ from django.contrib.admin.sites import AlreadyRegistered
 from school_erp_ai.admin_site import admin_site
 from .models import Exam, Subject, Result
 from school_erp_ai.admin_mixins import SchoolScopedAdmin
-from students.models import Student
+from admission.models import StudentProfile
 
 class ResultInline(admin.TabularInline):
     model = Result
@@ -15,7 +15,7 @@ class ExamAdmin(SchoolScopedAdmin, admin.ModelAdmin):
     search_fields = ("name",)
     ordering = ("-start_date",)
 
-class SubjectAdmin(admin.ModelAdmin):
+class SubjectAdmin(SchoolScopedAdmin, admin.ModelAdmin):
     list_display = ("name", "class_name")
     list_filter = ("class_name",)
     search_fields = ("name",)
@@ -35,7 +35,7 @@ class ResultAdmin(SchoolScopedAdmin, admin.ModelAdmin):
         school = getattr(getattr(request.user, "userprofile", None), "school", None)
         if school:
             if db_field.name == "student":
-                kwargs["queryset"] = Student.objects.filter(school=school)
+                kwargs["queryset"] = StudentProfile.objects.filter(school=school)
             elif db_field.name == "exam":
                 kwargs["queryset"] = Exam.objects.filter(school=school)
             elif db_field.name == "subject":

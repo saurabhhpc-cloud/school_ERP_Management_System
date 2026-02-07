@@ -1,6 +1,6 @@
 from django.db import models
 from schools.models import School
-from students.models import Student
+from admission.models import StudentProfile
 
 
 class FeeStructure(models.Model):
@@ -30,10 +30,11 @@ class FeePayment(models.Model):
 
     school = models.ForeignKey(School, on_delete=models.CASCADE)
     student = models.ForeignKey(
-        Student,
+        StudentProfile,
         on_delete=models.CASCADE,
         null=True,      
-        blank=True
+        blank=True,
+        related_name="fee_payments"
     )
 
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2)

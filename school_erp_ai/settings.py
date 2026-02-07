@@ -31,6 +31,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    "accounts.apps.AccountsConfig",
+    "admission.apps.AdmissionConfig",
+
     "schools",
     "classrooms",
     "students",
@@ -40,14 +43,15 @@ INSTALLED_APPS = [
     "fees",
     "exams",
     "parents",
-    "accounts",
+    "notices",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "schools.middleware.SchoolContextMiddleware",
+    
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
