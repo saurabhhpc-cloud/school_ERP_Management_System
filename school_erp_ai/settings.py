@@ -32,32 +32,30 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     "accounts.apps.AccountsConfig",
-    "admission.apps.AdmissionConfig",
-
     "schools",
-    "classrooms",
     "students",
     "teacher",
     "attendance",
-    "leads",
+    "admission",
     "fees",
     "exams",
     "parents",
     "notices",
+    "classrooms",
+    "leads",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "schools.middleware.SchoolContextMiddleware",
-    
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "schools.middleware.SchoolContextMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "school_erp_ai.middleware.RoleRedirectMiddleware",
+    
 ]
 
 ROOT_URLCONF = "school_erp_ai.urls"
@@ -70,6 +68,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
+                "django.template.context_processors.request",
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -148,10 +147,9 @@ AUTH_USER_MODEL = 'accounts.User'
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 LOGIN_URL = "/accounts/login/"
-LOGIN_REDIRECT_URL = "/schools/dashboard/"
-LOGOUT_REDIRECT_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/accounts/post-login/"
-LOGOUT_REDIRECT_URL = "/login/"
+LOGOUT_REDIRECT_URL = "/accounts/login/"
+
 
 if os.environ.get("DJANGO_SUPERUSER_USERNAME"):
     try:

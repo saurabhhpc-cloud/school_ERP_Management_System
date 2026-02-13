@@ -3,159 +3,175 @@
 
 {% block content %}
 
-<h3 class="fw-bold mb-3">School Admin Dashboard</h3>
-
-<!-- 🔔 NOTICE BOARD -->
-{% include "includes/notice_board.html" %}
-
-<!-- 💰 FEES QUICK STATS -->
-<div class="mb-3">
-  <strong>Paid:</strong> ₹ {{ fees_collected|floatformat:0 }} |
-  <strong>Pending:</strong> ₹ {{ pending_fees_amount|floatformat:0 }} |
-  <strong>Students with Dues:</strong> {{ pending_students_count }}
-</div>
-
-<!-- ===== KPI CARDS ===== -->
+<!-- KPI ROW -->
 <div class="row g-4 mb-4">
 
   <div class="col-md-3">
-    <div class="card card-stat card-blue">
-      <h6>Total Students</h6>
-      <h2>{{ total_students }}</h2>
+    <div class="card stat-card bg-primary">
+      <small>Total Students</small>
+      <h3>{{ total_students }}</h3>
     </div>
   </div>
 
   <div class="col-md-3">
-    <div class="card card-stat card-indigo">
-      <h6>Total Teachers</h6>
-      <h2>{{ total_teachers }}</h2>
+    <div class="card stat-card bg-info">
+      <small>Total Teachers</small>
+      <h3>{{ total_teachers }}</h3>
     </div>
   </div>
 
   <div class="col-md-3">
-    <div class="card card-stat card-sky">
-      <h6>Today Attendance</h6>
-      <h2>{{ today_percentage }}%</h2>
+    <div class="card stat-card bg-success">
+      <small>Fees Collected</small>
+      <h3>₹ {{ fees_collected|floatformat:0 }}</h3>
     </div>
   </div>
 
   <div class="col-md-3">
-    <div class="card card-stat card-blue">
-      <h6>Fees Collected</h6>
-      <h2>₹ {{ fees_collected|floatformat:0 }}</h2>
+    <div class="card stat-card bg-warning">
+      <small>Pending Fees</small>
+      <h3>₹ {{ pending_fees_amount|floatformat:0 }}</h3>
     </div>
   </div>
 
 </div>
 
-<!-- ===== CHARTS SECTION ===== -->
+<!-- MINI CHARTS -->
 <div class="row g-4 mb-4">
 
-  <!-- Result Chart -->
-  <div class="col-md-6">
-    <div class="card p-4 chart-card">
-      <h6 class="text-muted">📊 Class-wise Result</h6>
-      <canvas id="resultChart" height="260"></canvas>
+  <div class="col-lg-4">
+    <div class="card chart-card h-100">
+      <div class="card-body">
+        <h6 class="small mb-3">Class Result</h6>
+        <div class="chart-container">
+          <canvas id="resultChart"></canvas>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Attendance Chart -->
-  <div class="col-md-6">
-    <div class="card p-4 chart-card">
-      <h6 class="text-muted">📈 Attendance</h6>
-      <canvas id="attendanceChart" height="260"></canvas>
+  <div class="col-lg-4">
+    <div class="card chart-card h-100">
+      <div class="card-body">
+        <h6 class="small mb-3">Attendance Today</h6>
+        <div class="chart-container">
+          <canvas id="attendancePie"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card chart-card h-100">
+      <div class="card-body">
+        <h6 class="small mb-3">Monthly Revenue</h6>
+        <div class="chart-container">
+          <canvas id="monthlyChart"></canvas>
+        </div>
+      </div>
     </div>
   </div>
 
 </div>
 
-<!-- ===== FEES CHART ===== -->
-<div class="row g-4 mb-4">
-  <div class="col-md-12">
-    <div class="card p-4 chart-card">
-      <h6 class="text-muted">💰 Fees Overview (Collected vs Due)</h6>
-      <canvas id="feesChart" height="240"></canvas>
+
+<!-- HEATMAP -->
+<div class="card p-4 mb-4">
+  <h6>Attendance Heatmap</h6>
+  <div class="row">
+    {% for d in heatmap_data %}
+    <div class="col-2 mb-2">
+      <div class="p-2 text-center rounded text-white"
+           style="background-color: rgba(34,197,94, {{ d.opacity }});">
+        {{ d.percentage }}%
+        <div class="small">{{ d.date }}</div>
+      </div>
     </div>
+    {% empty %}
+    <div class="col-12 text-muted text-center">
+      No attendance data
+    </div>
+    {% endfor %}
   </div>
 </div>
+
+<!-- FORECAST -->
+<div class="card p-4 mb-4">
+  <h6>Revenue Forecast</h6>
+  <h5>Next Month Estimate: ₹ {{ forecast_revenue }}</h5>
+</div>
+
+{% if drop_alert %}
+<div class="alert alert-danger">
+  Revenue dropped compared to last month!
+</div>
+{% endif %}
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.addEventListener("DOMContentLoaded", function () {
 
-  /* ======================
-     RESULT CHART
-     ====================== */
-  new Chart(document.getElementById("resultChart"), {
-    type: "bar",
-    data: {
-      labels: {{ result_labels|safe }},
-      datasets: [{
-        label: "Average Result %",
-        data: {{ result_data|safe }},
-        backgroundColor: "rgba(59,130,246,0.7)",
-        borderRadius: 10
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: { min: 0, max: 100 }
-      }
-    }
-  });
+document.addEventListener("DOMContentLoaded", function(){
 
-  /* ======================
-     ATTENDANCE CHART
-     ====================== */
-  new Chart(document.getElementById("attendanceChart"), {
-    type: "line",
-    data: {
-      labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-      datasets: [{
-        label: "Attendance %",
-        data: [92, 88, 95, 90, 93, 89],   // demo (safe)
-        borderColor: "rgba(14,165,233,0.9)",
-        backgroundColor: "rgba(14,165,233,0.2)",
-        tension: 0.4,
-        fill: true
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: { min: 0, max: 100 }
-      }
-    }
-  });
+/* ================= RESULT BAR ================= */
+new Chart(document.getElementById("resultChart"), {
+  type: "bar",
+  data: {
+    labels: {{ result_labels|safe }},
+    datasets: [{
+      data: {{ result_data|safe }},
+      backgroundColor: "#6366f1"
+    }]
+  },
+  options:{
+    responsive:true,
+    maintainAspectRatio:false
+  }
+});
 
-  /* ======================
-     FEES CHART (DONUT)
-     ====================== */
-  new Chart(document.getElementById("feesChart"), {
-    type: "doughnut",
-    data: {
-      labels: {{ fees_chart_labels|safe }},
-      datasets: [{
-        data: {{ fees_chart_data|safe }},
-        backgroundColor: [
-          "rgba(37,99,235,0.85)",  // collected
-          "rgba(239,68,68,0.85)"   // due
-        ],
-        borderWidth: 0
-      }]
-    },
-    options: {
-      plugins: {
-        legend: { position: "bottom" }
-      }
-    }
-  });
+
+/* ================= ATTENDANCE PIE ================= */
+new Chart(document.getElementById("attendancePie"), {
+  type: "doughnut",
+  data: {
+    labels:["Present","Absent"],
+    datasets:[{
+      data:[
+        {{ today_present|default:0 }},
+        {{ today_absent|default:0 }}
+      ],
+      backgroundColor:["#22c55e","#ef4444"]
+    }]
+  },
+  options:{
+    responsive:true,
+    maintainAspectRatio:false,
+    cutout:"65%"
+  }
+});
+
+
+/* ================= MONTHLY REVENUE ================= */
+new Chart(document.getElementById("monthlyChart"), {
+  type:"line",
+  data:{
+    labels: {{ monthly_labels|safe }},
+    datasets:[{
+      data: {{ monthly_data|safe }},
+      borderColor:"#22c55e",
+      fill:true,
+      backgroundColor:"rgba(34,197,94,.2)",
+      tension:.4
+    }]
+  },
+  options:{
+    responsive:true,
+    maintainAspectRatio:false
+  }
+});
 
 });
+
 </script>
 {% endblock %}

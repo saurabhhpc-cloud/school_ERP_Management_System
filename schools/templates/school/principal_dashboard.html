@@ -1,0 +1,105 @@
+{% extends "school/base_school.html" %}
+{% block title %}Principal Dashboard{% endblock %}
+
+{% block content %}
+<h4 class="fw-bold mb-4">📊 Principal Dashboard</h4>
+
+<!-- ================= KPIs ================= -->
+<div class="row g-4 mb-4">
+
+  <div class="col-md-3">
+    <div class="card card-stat card-blue">
+      <h6>Total Students</h6>
+      <h2>{{ total_students }}</h2>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card card-stat card-sky">
+      <h6>Avg Attendance</h6>
+      <h2>{{ overall_attendance }}%</h2>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card card-stat card-indigo">
+      <h6>Avg Result</h6>
+      <h2>{{ overall_result }}%</h2>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card card-stat card-danger-soft">
+      <h6>At-Risk Students</h6>
+      <h2>{{ risk_students_count }}</h2>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================= CLASS PERFORMANCE ================= -->
+<h6 class="fw-bold mb-3">📘 Class-wise Performance</h6>
+
+<div class="row g-4">
+{% for c in class_data %}
+  <div class="col-md-4">
+    <div class="card p-3">
+
+      <h6 class="fw-bold">Class {{ c.class }}</h6>
+      <p>Students: {{ c.students }}</p>
+      <p>Sections: {{ c.sections }}</p>
+      <p>Attendance: {{ c.avg_attendance }}%</p>
+      <p>Result: {{ c.avg_result }}%</p>
+
+      {% if c.avg_attendance >= 85 %}
+        <span class="badge bg-success">🟢 Strong</span>
+      {% elif c.avg_attendance >= 75 %}
+        <span class="badge bg-warning text-dark">🟡 Watch</span>
+      {% else %}
+        <span class="badge bg-danger">🔴 Critical</span>
+      {% endif %}
+
+    </div>
+  </div>
+{% empty %}
+  <p>No class data available</p>
+{% endfor %}
+</div>
+
+<!-- ================= RISK STUDENTS ================= -->
+<div class="card mt-4 p-3">
+  <h6 class="fw-bold text-danger">⚠ Attention Required</h6>
+
+  <ul class="mb-0">
+    {% for r in risk_students %}
+      <li>
+        {{ r.student.first_name }}
+        (Class {{ r.student.admission.class_applied }}) —
+        Attendance:
+        {% if r.attendance == "N/A" %}
+          <span class="text-muted">N/A</span>
+        {% else %}
+          {{ r.attendance }}%
+        {% endif %}
+        |
+        Result:
+        {% if r.marks == "N/A" %}
+          <span class="text-muted">N/A</span>
+        {% else %}
+          {{ r.marks }}%
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>No critical students 🎉</li>
+    {% endfor %}
+  </ul>
+</div>
+
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-link text-danger">
+        <i class="bi bi-box-arrow-right"></i> Logout
+    </button>
+</form>
+
+{% endblock %}

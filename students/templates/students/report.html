@@ -1,0 +1,171 @@
+{% extends "school/base_school.html" %}
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+    <!-- ===================== STUDENT HEADER ===================== -->
+    <div class="card shadow mb-4">
+        <div class="card-body d-flex align-items-center">
+
+            {% if student.student_photo %}
+                <img src="{{ student.student_photo.url }}" 
+                     class="rounded-circle me-4"
+                     width="100" height="100">
+            {% else %}
+                <div class="rounded-circle bg-secondary text-white d-flex 
+                            align-items-center justify-content-center me-4"
+                     style="width:100px;height:100px;">
+                    {{ student.first_name|first }}
+                </div>
+            {% endif %}
+
+            <div>
+                <h3 class="mb-1">
+                    {{ student.first_name }} {{ student.last_name }}
+                </h3>
+                <p class="mb-1">
+                    Roll No: <strong>{{ student.roll_number }}</strong>
+                </p>
+                <p class="mb-1">
+                    School: {{ student.school.name }}
+                </p>
+                <p class="mb-0">
+                    Status:
+                    {% if student.is_active %}
+                        <span class="badge bg-success">Active</span>
+                    {% else %}
+                        <span class="badge bg-danger">Inactive</span>
+                    {% endif %}
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ===================== STATS CARDS ===================== -->
+    <div class="row">
+
+        <!-- Attendance -->
+        <div class="col-md-4 mb-3">
+            <div class="card shadow text-white bg-primary">
+                <div class="card-body">
+                    <h6>Attendance Percentage</h6>
+                    <h3>{{ attendance_percentage }}%</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fees -->
+        <div class="col-md-4 mb-3">
+            <div class="card shadow text-white bg-success">
+                <div class="card-body">
+                    <h6>Total Paid</h6>
+                    <h3>₹ {{ total_paid }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Due -->
+        <div class="col-md-4 mb-3">
+            <div class="card shadow text-white bg-danger">
+                <div class="card-body">
+                    <h6>Total Due</h6>
+                    <h3>₹ {{ total_due }}</h3>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ===================== PARENT DETAILS ===================== -->
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <h5>Parent Details</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Father:</strong> {{ student.parent.father_name }}</p>
+            <p><strong>Mother:</strong> {{ student.parent.mother_name }}</p>
+            <p><strong>Mobile:</strong> {{ student.parent.primary_mobile }}</p>
+            <p><strong>Email:</strong> {{ student.parent.email }}</p>
+        </div>
+    </div>
+
+
+    <!-- ===================== EXAM RESULTS ===================== -->
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <h5>Exam Results</h5>
+        </div>
+        <div class="card-body">
+
+            {% if results %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Exam</th>
+                        <th>Subject</th>
+                        <th>Marks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in results %}
+                    <tr>
+                        <td>{{ r.exam.name }}</td>
+                        <td>{{ r.subject.name }}</td>
+                        <td>{{ r.marks_obtained }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p>No exam records found.</p>
+            {% endif %}
+
+        </div>
+    </div>
+
+
+    <!-- ===================== FEES HISTORY ===================== -->
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <h5>Fee Payments</h5>
+        </div>
+        <div class="card-body">
+
+            {% if student.feepayment_set.all %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Total Fee</th>
+                        <th>Paid</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in student.feepayment_set.all %}
+                    <tr>
+                        <td>₹ {{ p.total_fee }}</td>
+                        <td>₹ {{ p.amount_paid }}</td>
+                        <td>
+                            {% if p.amount_paid >= p.total_fee %}
+                                <span class="badge bg-success">Paid</span>
+                            {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p>No fee records found.</p>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

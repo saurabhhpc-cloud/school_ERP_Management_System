@@ -1,8 +1,10 @@
 from django.urls import path
-from .views import create_lead, leads_dashboard, home
+from . import views
+
+app_name = "leads"
 
 urlpatterns = [
-    path("", home, name="home"),
-    path("lead/", create_lead, name="create_lead"),
-    path("leads/dashboard/", leads_dashboard, name="leads_dashboard"),
+    path("", views.leads_list, name="list"),
+    path("create/", views.create_lead, name="create_lead"),
+    path("dashboard/", views.leads_dashboard, name="leads_dashboard"),
 ]

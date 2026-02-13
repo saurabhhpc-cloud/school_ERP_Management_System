@@ -31,13 +31,16 @@ urlpatterns = [
     # Apps
     path("accounts/", include("accounts.urls")),
     path("parents/", include("parents.urls")),
-    path("students/", include("students.urls")),
+    path(
+    "students/",
+    include(("students.urls", "students"), namespace="students")
+    ),
     path("fees/", include("fees.urls")),
     path("attendance/",include(("attendance.urls", "attendance"), namespace="attendance")),
     path("leads/", include("leads.urls")),
     path("exams/", include("exams.urls")),
     path("teacher/", include(("teacher.urls", "teachers"), namespace="teachers")),
-
+    path("admission/", include("admission.urls")), 
     # Root
     path("", root_redirect),
 ]

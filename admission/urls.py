@@ -12,4 +12,5 @@ urlpatterns = [
     path("<int:admission_id>/apply/", views.mark_applied, name="mark_applied"),
     path("<int:admission_id>/confirm/", views.confirm_admission, name="confirm"),
     path("<int:admission_id>/reject/", views.reject_admission, name="reject"),
+    
 ]

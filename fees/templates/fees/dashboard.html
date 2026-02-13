@@ -1,50 +1,31 @@
-{% extends "base.html" %}
-{% block title %}Fees Dashboard{% endblock %}
-
+{% extends "school/base_school.html" %}
 {% block content %}
 
-<h4 class="mb-3">💰 Fees Dashboard</h4>
+<h3>Fees Dashboard</h3>
 
-<div class="row g-3 mb-4">
-  <div class="col-md-3">
-    <div class="card text-center shadow-sm">
-      <div class="card-body">
-        <h6>Students</h6>
-        <h3>{{ total_students }}</h3>
-      </div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5>Total Fees Collected</h5>
+                <h2>₹ {{ total_collected }}</h2>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div class="col-md-3">
-    <div class="card text-center shadow-sm">
-      <div class="card-body">
-        <h6>Total Fees</h6>
-        <h4>₹ {{ total_amount }}</h4>
-      </div>
+    <div class="col-md-6">
+        <div class="card text-white bg-danger mb-3">
+            <div class="card-body">
+                <h5>Pending Payments</h5>
+                <h2>{{ pending_count }}</h2>
+            </div>
+        </div>
     </div>
-  </div>
-
-  <div class="col-md-3">
-    <div class="card text-center shadow-sm border-success">
-      <div class="card-body">
-        <h6>Paid</h6>
-        <h4 class="text-success">₹ {{ paid_amount }}</h4>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-3">
-    <div class="card text-center shadow-sm border-danger">
-      <div class="card-body">
-        <h6>Pending</h6>
-        <h4 class="text-danger">₹ {{ due_amount }}</h4>
-      </div>
-    </div>
-  </div>
 </div>
 
-<a href="/fees/defaulters/" class="btn btn-primary">
-  View Fee Defaulters ({{ defaulters_count }})
+<a href="{% url 'fees:defaulters_report' %}" class="btn btn-primary">
+    View Defaulters
 </a>
 
 {% endblock %}
+

@@ -1,0 +1,40 @@
+{% for student in students %}
+<tr>
+    <td>{{ forloop.counter }}</td>
+    <td><strong>{{ student.first_name }} {{ student.last_name }}</strong></td>
+    <td>{{ student.admission.class_applied }}</td>
+    <td>{{ student.admission.section }}</td>
+    <td>{{ student.roll_number }}</td>
+    <td>
+        <span class="badge {% if student.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+            {{ student.is_active|yesno:"Active,Inactive" }}
+        </span>
+    </td>
+    <td>Reactive Mode</td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="7" class="text-center text-muted">
+        No students found
+    </td>
+</tr>
+
+<script>
+
+document.getElementById("filter-form").addEventListener("submit", function(e){
+
+    e.preventDefault()
+
+    let params = new URLSearchParams(new FormData(this))
+
+    fetch(`/students/ajax-filter/?${params}`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById("students-table-body").innerHTML = html
+        })
+
+})
+
+</script>
+
+{% endfor %}

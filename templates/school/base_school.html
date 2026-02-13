@@ -1,280 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}EduConnect ERP{% endblock %}</title>
+<meta charset="UTF-8">
+<title>{% block title %}EduConnect ERP{% endblock %}</title>
 
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<style>
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-        /* ===== GLOBAL ===== */
-
-        /* ===== Dashboard Color Themes ===== */
-.card-blue {
-    background: linear-gradient(135deg, #2563eb, #3b82f6);
-    color: #fff;
+/* ================= GLOBAL ================= */
+body{
+    background:#f4f6fb;
+    font-family: Inter, system-ui, -apple-system;
+    overflow-x:hidden;
 }
 
-.card-sky {
-    background: linear-gradient(135deg, #0284c7, #38bdf8);
-    color: #fff;
+/* ================= SIDEBAR ================= */
+.sidebar{
+    height:100vh;
+    background:linear-gradient(180deg,#0f172a,#1e293b);
+    color:#fff;
+    position:fixed;
+    width:240px;
+    transition:all .3s;
+    overflow-y:auto;
 }
 
-.card-indigo {
-    background: linear-gradient(135deg, #4338ca, #6366f1);
-    color: #fff;
+.sidebar h4{
+    font-weight:600;
+    padding:20px;
+    border-bottom:1px solid rgba(255,255,255,.1);
 }
 
-.card-cyan {
-    background: linear-gradient(135deg, #0891b2, #22d3ee);
-    color: #fff;
+.sidebar a{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 20px;
+    color:#cbd5e1;
+    text-decoration:none;
+    transition:.25s;
+    font-size:.95rem;
 }
 
-.card-warning-soft {
-    background: linear-gradient(135deg, #f59e0b, #fbbf24);
-    color: #fff;
+.sidebar a:hover{
+    background:rgba(255,255,255,.08);
+    padding-left:26px;
+    color:#fff;
 }
 
-.card-danger-soft {
-    background: linear-gradient(135deg, #dc2626, #f87171);
-    color: #fff;
+.sidebar a.active{
+    background:rgba(59,130,246,.2);
+    border-left:4px solid #3b82f6;
+    color:#fff;
 }
 
-.card-muted {
-    background: #f1f5f9;
-    color: #0f172a;
+/* ================= MAIN AREA ================= */
+.main-wrapper{
+    margin-left:240px;
+    transition:.3s;
 }
 
-.card-stat i {
-    font-size: 28px;
-    opacity: 0.9;
+/* ================= TOPBAR ================= */
+.topbar{
+    background:#fff;
+    padding:14px 25px;
+    border-bottom:1px solid #e5e7eb;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
 
-        body {
-            background-color: #f5f7fb;
-            font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont;
-        }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            height: 100vh;
-            background: linear-gradient(180deg, #0f172a, #1e293b);
-            color: #fff;
-            box-shadow: 4px 0 20px rgba(0,0,0,0.25);
-        }
-
-        .sidebar h4 {
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        .sidebar a {
-            color: #cbd5e1;
-            text-decoration: none;
-            padding: 12px 20px;
-            display: block;
-            border-left: 4px solid transparent;
-            transition: all 0.25s ease;
-            font-size: 0.95rem;
-        }
-
-        .sidebar a:hover {
-            background: rgba(255,255,255,0.08);
-            padding-left: 26px;
-        }
-
-        .sidebar a.active {
-            background: rgba(59,130,246,0.18);
-            border-left: 4px solid #3b82f6;
-            color: #fff;
-        }
-
-        .sidebar-toggle {
-            cursor: pointer;
-        }
-
-        /* ===== TOPBAR ===== */
-        .topbar {
-            background: #ffffff;
-            padding: 12px 24px;
-            border-bottom: 1px solid #e5e7eb;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .topbar h5 {
-            font-weight: 600;
-            color: #111827;
-        }
-
-        /* ===== CARDS ===== */
-        .card {
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.08);
-        }
-        .card-header button {
-            border-radius: 6px;
-            padding: 2px 8px;
-        }
-        .card-stat {
-            height: 120px;
-            padding: 16px;
-            transition: all 0.25s ease;
-        }
-
-        .card-stat h6 {
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            opacity: 0.75;
-        }
-
-        .card-stat h2 {
-            font-size: 2rem;
-            margin-top: 10px;
-            font-weight: 700;
-        }
-
-        .card-stat:hover {
-            transform: translateY(-6px);
-        }
-
-        /* ===== STAT COLORS ===== */
-        .bg-students {
-            background: #eef2ff;
-            color: #1e3a8a;
-        }
-
-        .bg-teachers {
-            background: #ecfeff;
-            color: #155e75;
-        }
-
-        .bg-pending {
-            background: #fff7ed;
-            color: #9a3412;
-        }
-
-        .fee-card {
-            background: linear-gradient(135deg, #16a34a, #22c55e);
-            color: #fff;
-        }
-
-        /* ===== CHARTS ===== */
-        .chart-card {
-    min-height: 360px;
+.school-name{
+    font-weight:600;
+    color:#0f172a;
 }
 
-.chart-card h6 {
-    font-size: 0.8rem;
-    letter-spacing: 0.8px;
+.user-box{
+    display:flex;
+    align-items:center;
+    gap:15px;
 }
 
-.chart-card canvas {
-    max-height: 280px;
+/* ================= RESPONSIVE ================= */
+@media(max-width:991px){
+    .sidebar{
+        left:-240px;
+    }
+    .sidebar.active{
+        left:0;
+    }
+    .main-wrapper{
+        margin-left:0;
+    }
 }
-    </style>
-    
+
+</style>
 </head>
 
 <body>
-<div class="container-fluid">
-<div class="row">
 
-    <!-- ===== SIDEBAR ===== -->
-    <div class="col-md-2 sidebar p-0">
-        <h4 class="text-center py-3 border-bottom border-secondary">
-            EduConnect ERP
-        </h4>
+<!-- ================= SIDEBAR ================= -->
+<div id="sidebar" class="sidebar">
 
-        <a href="{% url 'schools:dashboard' %}"
-           class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-            <i class="bi bi-speedometer2"></i> Dashboard
+    <h4 class="text-center">EduConnect ERP</h4>
+
+    <!-- DASHBOARD -->
+    <a href="{% url 'schools:dashboard' %}" 
+       class="{% if '/schools/dashboard' in request.path %}active{% endif %}">
+        <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+
+    <!-- STUDENTS -->
+    <a href="{% url 'students:students_list' %}" 
+       class="{% if '/students/' in request.path %}active{% endif %}">
+        <i class="bi bi-people"></i> Students
+    </a>
+
+    <!-- TEACHERS -->
+    <a href="{% url 'teachers:list' %}" 
+       class="{% if '/teacher/' in request.path %}active{% endif %}">
+        <i class="bi bi-person-badge"></i> Teachers
+    </a>
+
+    <!-- ADMISSION -->
+    <a href="{% url 'admission:list' %}" 
+       class="{% if '/admission/' in request.path %}active{% endif %}">
+        <i class="bi bi-mortarboard"></i> Admission
+    </a>
+
+    <!-- FEES MENU -->
+    <a data-bs-toggle="collapse" href="#feesMenu"
+       class="{% if '/fees/' in request.path %}active{% endif %}">
+        <i class="bi bi-cash-stack"></i> Fees
+    </a>
+
+    <div class="collapse ps-3 {% if '/fees/' in request.path %}show{% endif %}" id="feesMenu">
+
+        <a href="{% url 'fees:fees_dashboard' %}">
+            Fees Dashboard
         </a>
 
-        <a href="{% url 'students:list' %}"
-           class="{% if '/students/' in request.path %}active{% endif %}">
-            <i class="bi bi-people"></i> Students
+        <a href="{% url 'fees:defaulters_report' %}">
+            Defaulters
         </a>
 
-        <a href="{% url 'teachers:list' %}"
-           class="{% if '/teacher/' in request.path %}active{% endif %}">
-            <i class="bi bi-person-badge"></i> Teachers
+        <a href="{% url 'schools:export-fees-excel' %}">
+            Export Excel
         </a>
 
-        <!-- Attendance Menu -->
-        <a class="d-flex justify-content-between align-items-center sidebar-toggle
-           {% if '/attendance/' in request.path %}active{% endif %}"
-           data-bs-toggle="collapse"
-           href="#attendanceMenu">
-            <span><i class="bi bi-calendar-check"></i> Attendance</span>
-            <i class="bi bi-chevron-down"></i>
+        <a href="{% url 'schools:export-fees-pdf' %}">
+            Export PDF
         </a>
 
-        <div class="collapse {% if '/attendance/' in request.path %}show{% endif %}"
-             id="attendanceMenu">
+    </div>
 
-            <a class="ps-4" href="{% url 'attendance:class_wise' %}">
-                ▸ Class Wise Attendance
-            </a>
+    <!-- ATTENDANCE MENU -->
+    <a data-bs-toggle="collapse" href="#attendanceMenu"
+       class="{% if '/attendance/' in request.path %}active{% endif %}">
+        <i class="bi bi-check-circle"></i> Attendance
+    </a>
 
-            <a class="ps-4" href="{% url 'attendance:overview' %}">
-                ▸ Attendance Overview
-            </a>
+    <div class="collapse ps-3 {% if '/attendance/' in request.path %}show{% endif %}" id="attendanceMenu">
 
-            <a class="ps-4" href="{% url 'attendance:low_attendance' %}">
-                ⚠ Low Attendance Alerts
-            </a>
-
-            <a class="ps-4" href="{% url 'attendance:student_monthly' %}">
-                📊 Student Monthly Attendance
-            </a>
-
-            {% if can_import_attendance %}
-            <a class="ps-4" href="{% url 'attendance:import' %}">
-                ⬆ Import Attendance
-            </a>
-            {% endif %}
-        </div>
-
-        {% if can_import_students %}
-        <a href="{% url 'students:import_students' %}"
-           class="{% if 'import_students' in request.path %}active{% endif %}">
-            <i class="bi bi-upload"></i> Import Students
+        <a href="{% url 'schools:today-attendance' %}">
+            Today Attendance
         </a>
-        {% endif %}
 
-        <a href="{% url 'logout' %}">
+        <a href="{% url 'schools:export-attendance-excel' %}">
+            Export Excel
+        </a>
+
+        <a href="{% url 'schools:export-attendance-pdf' %}">
+            Export PDF
+        </a>
+
+    </div>
+
+    <!-- EXAMS -->
+    <a href="{% url 'exams:list' %}" 
+       class="{% if '/exams/' in request.path %}active{% endif %}">
+        <i class="bi bi-clipboard-data"></i> Exams
+    </a>
+
+    <!-- LEADS -->
+    <a href="{% url 'leads:list' %}" 
+       class="{% if '/leads/' in request.path %}active{% endif %}">
+        <i class="bi bi-graph-up"></i> Leads
+    </a>
+
+    <!-- LOGOUT -->
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button class="btn btn-link text-danger w-100 text-start">
             <i class="bi bi-box-arrow-right"></i> Logout
-        </a>
+        </button>
+    </form>
+
+</div>
+
+<!-- ================= MAIN WRAPPER ================= -->
+<div class="main-wrapper">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+
+        <div>
+            <button class="btn btn-sm btn-light d-lg-none"
+                    onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <span class="school-name ms-2">
+                {{ request.user.school.name|default:"School Dashboard" }}
+            </span>
+        </div>
+
+        <div class="user-box">
+            <div class="position-relative">
+                <i class="bi bi-bell fs-5"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    3
+                </span>
+            </div>
+            <strong>{{ request.user }}</strong>
+        </div>
+
     </div>
 
-    <!-- ===== MAIN CONTENT ===== -->
-    <div class="col-md-10 p-0">
-        <div class="topbar d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">School Admin Dashboard</h5>
-            <span>Welcome, <strong>{{ request.user }}</strong></span>
-        </div>
-
-        <div class="p-4">
-            {% block content %}{% endblock %}
-        </div>
+    <!-- PAGE CONTENT -->
+    <div class="p-4">
+        {% block content %}{% endblock %}
     </div>
 
 </div>
-</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+function toggleSidebar(){
+    document.getElementById("sidebar").classList.toggle("active");
+}
+</script>
 
 {% block extra_js %}{% endblock %}
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
